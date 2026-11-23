@@ -22,6 +22,7 @@ from urllib.request import Request, urlopen
 from investing_sources import investing_macro
 from market_sources import (fetch_text, parse_us_fed, parse_kr_bok, parse_stockhub,
                             parse_dramexchange, parse_us_buffett, parse_kr_buffett,
+                            parse_investing_fed_decision, parse_gookjang_buffett,
                             parse_feargreed_kospi, fetch_rendered_feargreed,
                             LocalPriceHistory)
 
@@ -311,6 +312,12 @@ def collect(progress=None):
             return
         except Exception as e: issues.append('FRED: '+str(e)[:100])
         try:
+            out,stamp=parse_investing_fed_decision(fetch_text(
+                'https://kr.investing.com/economic-calendar/fed-interest-rate-decision-168',7))
+            record(out,'Investing.com Fed interest rate decision (actual result)',stamp)
+            return
+        except Exception as e: issues.append('Investing Fed: '+str(e)[:100])
+        try:
             out,stamp=parse_us_fed(fetch_text('https://www.federalreserve.gov/monetarypolicy/openmarket.htm',6))
             record(out,'Federal Reserve official FOMC table',stamp)
             return
@@ -426,16 +433,21 @@ def collect(progress=None):
         record(out,'CurrentMarketValuation (quarterly public value)',stamp)
 
     def kr_buffett():
+        issues=[]
+        try:
+            out,stamp=parse_gookjang_buffett(fetch_text('https://gookjang.com/buffet-index',8))
+            record(out,'Gookjang.com Korea Buffett index',stamp)
+            return
+        except Exception as e: issues.append('Gookjang: '+str(e)[:110])
         urls=['https://www.gurufocus.com/economic_indicators/4333/korea-ratio-of-total-market-cap-over-gdp',
               'https://www.gurufocus.com/global-market-valuation.php?country=KOR']
-        failure=None
         for url in urls:
             try:
                 out,stamp=parse_kr_buffett(fetch_text(url,8))
                 record(out,'GuruFocus Korea TMC/GDP',stamp)
                 return
-            except Exception as exc: failure=exc
-        raise failure or ValueError('한국 버핏지수 조회 실패')
+            except Exception as e: issues.append('GuruFocus: '+str(e)[:110])
+        raise ValueError('; '.join(issues))
 
     tasks=[
         ('gold',gold),('copper',lambda:commodity(['HG=F'],'copperprice','copperchange')),

@@ -85,6 +85,42 @@ def date_us_month(name, day, year):
     return datetime.strptime(f'{name[:3]} {int(day)} {year}', '%b %d %Y').replace(tzinfo=timezone.utc)
 
 
+def parse_investing_fed_decision(raw):
+    """Latest *actual* FOMC decision, not forecast/previous or Fed-rate probabilities.
+
+    Investing.com's Korean calendar headline is shaped as:
+      최근 발표 2026년 10월 28일 결과 3.75% 예측 ... 이전 ...
+    """
+    text = visible_text(raw)
+    pattern = (r'최근\s*발표\s*(20\d{2})년\s*(\d{1,2})월\s*(\d{1,2})일'
+               r'\s*결과\s*([\d.,]+)\s*%')
+    m = re.search(pattern, text)
+    if not m:
+        raise ValueError('Investing.com 연준 금리결정 최신 발표일/결과를 찾지 못함')
+    year, month, day, value = m.groups()
+    date = datetime(int(year), int(month), int(day), tzinfo=timezone.utc)
+    stamp = check_age(date, 100)
+    rate = valid(float(value.replace(',', '')), 0, 30)
+    # Calendar reports the rate, but has no reliable direction in the headline.
+    return {'usrate': rate}, stamp
+
+
+def parse_gookjang_buffett(raw):
+    """Read only the '한국 버핏 지수 / 현재 / ...% / 마지막 업데이트' headline."""
+    text = visible_text(raw)
+    m = re.search(
+        r'한국\s*버핏\s*지수\s*.{0,90}?현재\s*([\d.,]+)\s*%'
+        r'\s*마지막\s*업데이트\s*(20\d{2})\s*[.]\s*(\d{1,2})\s*[.]\s*(\d{1,2})\s*[.]?',
+        text, re.I
+    )
+    if not m:
+        raise ValueError('국장닷컴 한국 버핏 지수의 현재값/업데이트 날짜를 찾지 못함')
+    value, year, month, day = m.groups()
+    date = datetime(int(year), int(month), int(day), tzinfo=timezone.utc)
+    stamp = check_age(date, 120)
+    return {'krbuffett': valid(float(value.replace(',', '')), 20, 500)}, stamp
+
+
 def parse_us_fed(raw):
     text = visible_text(raw)
     # Official Fed rate table shows decisions as 'September 17 25 0 3.75-4.00'.
