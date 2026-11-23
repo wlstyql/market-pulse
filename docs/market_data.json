@@ -1,1 +1,78 @@
-{"as_of": null, "values": {}, "metadata": {}, "errors": {"setup": "첫 수집이 아직 실행되지 않았습니다."}, "complete": true}
+{
+  "as_of": "2026-11-23T05:08:40.858987+00:00",
+  "complete": true,
+  "errors": {
+    "buffettKR": "HTTPError: HTTP Error 403: Forbidden",
+    "krBuffett": "HTTPError: HTTP Error 403: Forbidden"
+  },
+  "metadata": {
+    "copperchange": {
+      "as_of": "2026-11-20T05:00:00+00:00",
+      "source": "Yahoo Finance HG=F"
+    },
+    "copperprice": {
+      "as_of": "2026-11-20T05:00:00+00:00",
+      "source": "Yahoo Finance HG=F"
+    },
+    "ddrprice": {
+      "as_of": "2026-11-23",
+      "source": "DRAMeXchange DDR4 16Gb 3200 session average"
+    },
+    "goldprice": {
+      "as_of": "2026-11-23T05:08:11+00:00",
+      "source": "Gold API XAU spot"
+    },
+    "krdir": {
+      "as_of": "2026-08-27",
+      "source": "한국은행 공식 기준금리 추이"
+    },
+    "krfear": {
+      "as_of": "2026-11-23T00:00:00+00:00",
+      "source": "자체 산출 KOSPI 심리지수 (20일 모멘텀·이평선·RSI·변동성)"
+    },
+    "krrate": {
+      "as_of": "2026-08-27",
+      "source": "한국은행 공식 기준금리 추이"
+    },
+    "usbuffett": {
+      "as_of": "2026-06-30",
+      "source": "CurrentMarketValuation (quarterly public value)"
+    },
+    "usdir": {
+      "as_of": "2026-09-17",
+      "source": "Federal Reserve FOMC official rate history (midpoint)"
+    },
+    "usfear": {
+      "as_of": "2026-11-20T23:59:52+00:00",
+      "source": "CNN unofficial endpoint"
+    },
+    "usrate": {
+      "as_of": "2026-09-17",
+      "source": "Federal Reserve FOMC official rate history (midpoint)"
+    },
+    "wtichange": {
+      "as_of": "2026-11-20T05:00:00+00:00",
+      "source": "Yahoo Finance CL=F"
+    },
+    "wtiprice": {
+      "as_of": "2026-11-20T05:00:00+00:00",
+      "source": "Yahoo Finance CL=F"
+    }
+  },
+  "pending": [],
+  "values": {
+    "copperchange": -16.29,
+    "copperprice": 5.477,
+    "ddrprice": 78.5,
+    "goldprice": 3606.899902,
+    "krdir": 0,
+    "krfear": 5.5,
+    "krrate": 3.0,
+    "usbuffett": 244.0,
+    "usdir": 0,
+    "usfear": 9.67,
+    "usrate": 3.875,
+    "wtichange": -13.56,
+    "wtiprice": 83.98
+  }
+}
