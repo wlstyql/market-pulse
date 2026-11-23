@@ -1,5 +1,5 @@
 {
-  "as_of": "2026-11-23T07:13:19.680631+00:00",
+  "as_of": "2026-11-23T07:26:15.889317+00:00",
   "complete": true,
   "errors": {
     "buffettKR": "HTTPError: HTTP Error 403: Forbidden",
@@ -18,9 +18,13 @@
       "as_of": "2026-11-23",
       "source": "DRAMeXchange DDR4 16Gb 3200 session average"
     },
+    "goldchange": {
+      "as_of": "2026-11-23T05:00:00+00:00",
+      "source": "Yahoo Finance GC=F"
+    },
     "goldprice": {
-      "as_of": "2026-11-23T07:13:11+00:00",
-      "source": "Gold API XAU spot"
+      "as_of": "2026-11-23T05:00:00+00:00",
+      "source": "Yahoo Finance GC=F"
     },
     "krdir": {
       "as_of": "2026-08-27",
@@ -40,7 +44,7 @@
     },
     "usdir": {
       "as_of": "2026-09-17",
-      "source": "Federal Reserve FOMC target range"
+      "source": "Federal Reserve target range"
     },
     "usfear": {
       "as_of": "2026-11-20T23:59:52+00:00",
@@ -48,7 +52,7 @@
     },
     "usrate": {
       "as_of": "2026-09-17",
-      "source": "Federal Reserve FOMC target range"
+      "source": "Federal Reserve target range"
     },
     "wtichange": {
       "as_of": "2026-11-23T05:00:00+00:00",
@@ -61,10 +65,11 @@
   },
   "pending": [],
   "values": {
-    "copperchange": -14.56,
-    "copperprice": 5.533,
+    "copperchange": -14.38,
+    "copperprice": 5.5445,
     "ddrprice": 78.5,
-    "goldprice": 3629.75,
+    "goldchange": -9.35,
+    "goldprice": 3633.3,
     "krdir": 0,
     "krfear": 5.4,
     "krrate": 3.0,
@@ -72,7 +77,7 @@
     "usdir": 0,
     "usfear": 9.67,
     "usrate": 3.875,
-    "wtichange": -19.7,
-    "wtiprice": 82.93
+    "wtichange": -19.57,
+    "wtiprice": 83.06
   }
 }
