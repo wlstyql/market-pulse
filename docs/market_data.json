@@ -1,9 +1,10 @@
 {
-  "as_of": "2026-11-23T08:41:59.467730+00:00",
+  "as_of": "2026-11-23T09:00:57.774255+00:00",
   "complete": true,
   "errors": {
-    "buffettKR": "HTTPError: HTTP Error 403: Forbidden",
-    "krBuffett": "HTTPError: HTTP Error 403: Forbidden"
+    "buffettKR": "ValueError: GuruFocus 4333: HTTP Error 403: Forbidden",
+    "krBuffett": "ValueError: GuruFocus 4333: HTTP Error 403: Forbidden",
+    "usRate": "ValueError: Investing actual: HTTP Error 403: Forbidden; FRED fallback: The read operation timed out"
   },
   "metadata": {
     "copperchange": {
@@ -20,11 +21,12 @@
     },
     "goldchange": {
       "as_of": "2026-11-23T05:00:00+00:00",
+      "carried_forward": true,
       "source": "Yahoo Finance GC=F"
     },
     "goldprice": {
-      "as_of": "2026-11-23T05:00:00+00:00",
-      "source": "Yahoo Finance GC=F"
+      "as_of": "2026-11-23T09:00:11+00:00",
+      "source": "Gold API XAU spot"
     },
     "krdir": {
       "as_of": "2026-08-27",
@@ -50,12 +52,8 @@
       "as_of": "2026-10-01",
       "source": "BLS CUSR0000SA0L1E"
     },
-    "usdir": {
-      "as_of": "2026-09-17",
-      "source": "Federal Reserve official FOMC table"
-    },
     "usfear": {
-      "as_of": "2026-11-23T08:23:01+00:00",
+      "as_of": "2026-11-23T08:43:01+00:00",
       "source": "CNN unofficial endpoint"
     },
     "uspayroll3m": {
@@ -65,10 +63,6 @@
     "uspayrollchange": {
       "as_of": "2026-10-01",
       "source": "BLS CES0000000001"
-    },
-    "usrate": {
-      "as_of": "2026-09-17",
-      "source": "Federal Reserve official FOMC table"
     },
     "usunemployment": {
       "as_of": "2026-10-01",
@@ -89,25 +83,23 @@
   },
   "pending": [],
   "values": {
-    "copperchange": -14.99,
-    "copperprice": 5.505,
+    "copperchange": -14.82,
+    "copperprice": 5.516,
     "ddrprice": 78.5,
     "goldchange": -9.99,
-    "goldprice": 3607.5,
+    "goldprice": 3613.800049,
     "krdir": 0,
     "krfear": 5.4,
     "krrate": 3.0,
     "usbuffett": 244.0,
     "uscorecpi": 2.87,
     "uscorecpi3m": 3.75,
-    "usdir": 0,
     "usfear": 10.41,
     "uspayroll3m": 137.0,
     "uspayrollchange": 165.0,
-    "usrate": 3.875,
     "usunemployment": 4.1,
     "usunemployment3m": 0.0,
-    "wtichange": -19.75,
-    "wtiprice": 82.87
+    "wtichange": -19.95,
+    "wtiprice": 82.67
   }
 }
