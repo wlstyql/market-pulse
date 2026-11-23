@@ -19,6 +19,7 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from urllib.parse import quote, urlencode
 from urllib.request import Request, urlopen
+from investing_sources import investing_macro
 from market_sources import (fetch_text, parse_us_fed, parse_kr_bok, parse_stockhub,
                             parse_dramexchange, parse_us_buffett, parse_kr_buffett,
                             parse_feargreed_kospi, fetch_rendered_feargreed,
@@ -317,9 +318,24 @@ def collect(progress=None):
         raise ValueError('; '.join(issues))
 
     def us_macro():
-        # Separate FRED series are independent, so partial successes are reported.
+        # Official FRED/BLS series first; Investing.com calendar is a bounded fallback.
         numbers,failures,sources=us_macro_observations()
-        for key,fields in [('usCoreCPI',['uscorecpi','uscorecpi3m']),
+        missing = set(('uscorecpimom','uscorecpi3m','usunemployment','uspayrollchange')) - set(numbers)
+        if missing:
+            fallback, dates, problems = investing_macro(fetch_text)
+            for field, value in fallback.items():
+                if field not in numbers:
+                    group = ('usCoreCPI' if field.startswith('uscorecpi') else
+                             'usUnemployment' if field.startswith('usunemployment') else 'usPayrolls')
+                    group_date = ('corecpi' if group=='usCoreCPI' else 'unemployment' if group=='usUnemployment' else 'payrolls')
+                    if group_date in dates:
+                        record({field:value},'Investing.com actual release',dates[group_date])
+                        if field in ('uscorecpi3m','usunemployment','uspayrollchange'):
+                            failures.pop(group,None)
+            for k, err in problems.items():
+                group={'corecpi':'usCoreCPI','unemployment':'usUnemployment','payrolls':'usPayrolls'}[k]
+                if group in failures: failures[group] += '; Investing: '+err
+        for key,fields in [('usCoreCPI',['uscorecpi','uscorecpi3m','uscorecpimom']),
                            ('usUnemployment',['usunemployment','usunemployment3m']),
                            ('usPayrolls',['uspayrollchange','uspayroll3m'])]:
             datekey={'usCoreCPI':'uscorecpi_date','usUnemployment':'usunemployment_date','usPayrolls':'uspayroll_date'}[key]
