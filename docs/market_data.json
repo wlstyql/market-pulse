@@ -1,5 +1,5 @@
 {
-  "as_of": "2026-11-23T07:26:15.889317+00:00",
+  "as_of": "2026-11-23T08:41:59.467730+00:00",
   "complete": true,
   "errors": {
     "buffettKR": "HTTPError: HTTP Error 403: Forbidden",
@@ -42,17 +42,41 @@
       "as_of": "2026-06-30",
       "source": "CurrentMarketValuation (quarterly public value)"
     },
+    "uscorecpi": {
+      "as_of": "2026-10-01",
+      "source": "BLS CUSR0000SA0L1E"
+    },
+    "uscorecpi3m": {
+      "as_of": "2026-10-01",
+      "source": "BLS CUSR0000SA0L1E"
+    },
     "usdir": {
       "as_of": "2026-09-17",
-      "source": "Federal Reserve target range"
+      "source": "Federal Reserve official FOMC table"
     },
     "usfear": {
-      "as_of": "2026-11-20T23:59:52+00:00",
+      "as_of": "2026-11-23T08:23:01+00:00",
       "source": "CNN unofficial endpoint"
+    },
+    "uspayroll3m": {
+      "as_of": "2026-10-01",
+      "source": "BLS CES0000000001"
+    },
+    "uspayrollchange": {
+      "as_of": "2026-10-01",
+      "source": "BLS CES0000000001"
     },
     "usrate": {
       "as_of": "2026-09-17",
-      "source": "Federal Reserve target range"
+      "source": "Federal Reserve official FOMC table"
+    },
+    "usunemployment": {
+      "as_of": "2026-10-01",
+      "source": "BLS LNS14000000"
+    },
+    "usunemployment3m": {
+      "as_of": "2026-10-01",
+      "source": "BLS LNS14000000"
     },
     "wtichange": {
       "as_of": "2026-11-23T05:00:00+00:00",
@@ -65,19 +89,25 @@
   },
   "pending": [],
   "values": {
-    "copperchange": -14.38,
-    "copperprice": 5.5445,
+    "copperchange": -14.99,
+    "copperprice": 5.505,
     "ddrprice": 78.5,
-    "goldchange": -9.35,
-    "goldprice": 3633.3,
+    "goldchange": -9.99,
+    "goldprice": 3607.5,
     "krdir": 0,
     "krfear": 5.4,
     "krrate": 3.0,
     "usbuffett": 244.0,
+    "uscorecpi": 2.87,
+    "uscorecpi3m": 3.75,
     "usdir": 0,
-    "usfear": 9.67,
+    "usfear": 10.41,
+    "uspayroll3m": 137.0,
+    "uspayrollchange": 165.0,
     "usrate": 3.875,
-    "wtichange": -19.57,
-    "wtiprice": 83.06
+    "usunemployment": 4.1,
+    "usunemployment3m": 0.0,
+    "wtichange": -19.75,
+    "wtiprice": 82.87
   }
 }
