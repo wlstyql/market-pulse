@@ -35,8 +35,11 @@ jobs:
           ls -la docs || true
           python -c "import pathlib; print('collect.py exists:', pathlib.Path('collect.py').is_file())"
 
-      - name: Collect market data
-        run: python -u collect.py
+      - name: Collect and write JSON
+        env:
+          KR_BUFFETT_MANUAL_VALUE: ${{ vars.KR_BUFFETT_MANUAL_VALUE }}
+          KR_BUFFETT_MANUAL_AS_OF: ${{ vars.KR_BUFFETT_MANUAL_AS_OF }}
+        run: python collect.py
 
       - name: Show collected numeric values
         if: always()
