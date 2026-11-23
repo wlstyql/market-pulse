@@ -1,5 +1,5 @@
 {
-  "as_of": "2026-11-23T05:21:35.769190+00:00",
+  "as_of": "2026-11-23T06:32:30.918416+00:00",
   "complete": true,
   "errors": {
     "buffettKR": "HTTPError: HTTP Error 403: Forbidden",
@@ -19,12 +19,12 @@
       "source": "DRAMeXchange DDR4 16Gb 3200 session average"
     },
     "goldprice": {
-      "as_of": "2026-11-23T05:21:11+00:00",
+      "as_of": "2026-11-23T06:32:11+00:00",
       "source": "Gold API XAU spot"
     },
     "krdir": {
       "as_of": "2026-08-27",
-      "source": "한국은행 공식 기준금리 추이"
+      "source": "한국은행 기준금리 변경 이력"
     },
     "krfear": {
       "as_of": "2026-11-23T00:00:00+00:00",
@@ -32,7 +32,7 @@
     },
     "krrate": {
       "as_of": "2026-08-27",
-      "source": "한국은행 공식 기준금리 추이"
+      "source": "한국은행 기준금리 변경 이력"
     },
     "usbuffett": {
       "as_of": "2026-06-30",
@@ -40,7 +40,7 @@
     },
     "usdir": {
       "as_of": "2026-09-17",
-      "source": "Federal Reserve FOMC official rate history (midpoint)"
+      "source": "Federal Reserve FOMC target range"
     },
     "usfear": {
       "as_of": "2026-11-20T23:59:52+00:00",
@@ -48,7 +48,7 @@
     },
     "usrate": {
       "as_of": "2026-09-17",
-      "source": "Federal Reserve FOMC official rate history (midpoint)"
+      "source": "Federal Reserve FOMC target range"
     },
     "wtichange": {
       "as_of": "2026-11-23T05:00:00+00:00",
@@ -61,10 +61,10 @@
   },
   "pending": [],
   "values": {
-    "copperchange": -14.61,
-    "copperprice": 5.53,
+    "copperchange": -14.71,
+    "copperprice": 5.5235,
     "ddrprice": 78.5,
-    "goldprice": 3612.649902,
+    "goldprice": 3618.0,
     "krdir": 0,
     "krfear": 5.5,
     "krrate": 3.0,
@@ -72,7 +72,7 @@
     "usdir": 0,
     "usfear": 9.67,
     "usrate": 3.875,
-    "wtichange": -19.11,
-    "wtiprice": 83.53
+    "wtichange": -19.12,
+    "wtiprice": 83.52
   }
 }
