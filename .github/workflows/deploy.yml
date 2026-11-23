@@ -1,9 +1,11 @@
-
 name: Deploy MARKET PULSE
 
 on:
   push:
     branches: [main]
+    paths:
+      - 'docs/**'
+      - '.github/workflows/deploy.yml'
   workflow_dispatch:
 
 permissions:
@@ -12,7 +14,7 @@ permissions:
   id-token: write
 
 concurrency:
-  group: pages
+  group: github-pages
   cancel-in-progress: true
 
 jobs:
@@ -21,19 +23,21 @@ jobs:
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
-
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-
-      - name: Configure Pages
+      - name: Verify site files
+        run: |
+          test -s docs/index.html
+          test -s docs/market_data.json
+          python -m json.tool docs/market_data.json > /dev/null
+          echo 'Verified docs/index.html and docs/market_data.json'
+      - name: Configure GitHub Pages
         uses: actions/configure-pages@v5
-
-      - name: Upload website
+      - name: Upload docs site
         uses: actions/upload-pages-artifact@v3
         with:
-          path: .
-
+          path: docs
       - name: Deploy
         id: deployment
         uses: actions/deploy-pages@v4
