@@ -123,7 +123,7 @@ def fred(identifier):
     for row in csv.DictReader(io.StringIO(raw)):
         val = row.get(identifier)
         if val and val != '.':
-            try: rows.append((datetime.strptime(row['DATE'], '%Y-%m-%d').replace(tzinfo=timezone.utc), float(val)))
+            try: rows.append((datetime.strptime(row.get('observation_date') or row.get('DATE'), '%Y-%m-%d').replace(tzinfo=timezone.utc), float(val)))
             except (ValueError, KeyError): pass
     if not rows: raise ValueError('no data')
     current_date(rows[-1][0].isoformat(), 14)
@@ -193,44 +193,62 @@ def collect(progress=None):
             commodity(['GC=F'], 'goldprice', 'goldchange')
 
     def us_rate():
-        # FRED target bounds: one official CSV download, not two serial requests.
-        # This is the TARGET rate, not the effective fed funds rate (DFF).
-        try:
-            start_date=(datetime.now(timezone.utc)-timedelta(days=150)).strftime('%Y-%m-%d')
-            url='https://fred.stlouisfed.org/graph/fredgraph.csv?' + urlencode({
-                'id':'DFEDTARU,DFEDTARL','cosd':start_date})
-            raw=get_bytes(url,timeout=8).decode('utf-8-sig')
-            points=[]
-            for row in csv.DictReader(io.StringIO(raw)):
+        # FRED target-range upper/lower limits. The CSV date header can be
+        # DATE or observation_date depending on the export endpoint.
+        def parse_bounds(raw):
+            reader = csv.DictReader(io.StringIO(raw.decode('utf-8-sig')))
+            rows = []
+            for row in reader:
                 try:
-                    upper=float(row['DFEDTARU']); lower=float(row['DFEDTARL'])
-                    dt=datetime.strptime(row['DATE'],'%Y-%m-%d').replace(tzinfo=timezone.utc)
-                    if 0 <= lower <= upper <= 30 and upper-lower <= 1:
-                        points.append((dt,lower,upper))
-                except (ValueError,TypeError,KeyError):
+                    date_str = row.get('observation_date') or row.get('DATE') or row.get('date')
+                    dt = datetime.strptime(date_str, '%Y-%m-%d').replace(tzinfo=timezone.utc)
+                    lo, hi = float(row['DFEDTARL']), float(row['DFEDTARU'])
+                    if 0 <= lo <= hi <= 30 and hi - lo <= 1:
+                        rows.append((dt, lo, hi))
+                except (TypeError, KeyError, ValueError):
                     continue
-            if not points: raise ValueError('FRED 정책금리 상하한 자료 없음')
-            dt,lower,upper=max(points,key=lambda x:x[0])
-            stamp=current_date(dt.isoformat(),15)
-            # Direction uses the most recent change in the observed series.
-            previous=next(((lo+hi)/2 for date,lo,hi in reversed(points[:-1])
-                           if abs((lo+hi)/2 - (lower+upper)/2)>0.0001),None)
-            direction=0
-            if previous is not None and (datetime.now(timezone.utc)-dt).days <= 40:
-                direction=1 if (lower+upper)/2 > previous else -1
-            record({'usrate':round((upper+lower)/2,4),'usdir':direction},
-                   'FRED DFEDTARU/DFEDTARL',stamp)
-            return
-        except Exception as primary:
-            # Official Fed page fallback; never use an unrelated market rate.
+            if not rows:
+                raise ValueError('FRED 통합 CSV에 유효한 금리 상하한이 없음')
+            return sorted(rows)
+
+        errors = []
+        start_date = (datetime.now(timezone.utc)-timedelta(days=150)).strftime('%Y-%m-%d')
+        try:
+            url = 'https://fred.stlouisfed.org/graph/fredgraph.csv?' + urlencode({
+                'id':'DFEDTARU,DFEDTARL','cosd':start_date})
+            points = parse_bounds(get_bytes(url, timeout=9))
+        except Exception as exc:
+            errors.append('FRED 통합: '+str(exc)[:100])
+            # Individual series are easier for FRED to serve consistently.
             try:
-                out,stamp=parse_us_fed(fetch_text(
-                    'https://www.federalreserve.gov/monetarypolicy/openmarket.htm',8))
-                record(out,'Federal Reserve FOMC target range',stamp)
-                return
+                upper = fred('DFEDTARU')
+                lower = fred('DFEDTARL')
+                uppers = dict(upper)
+                points = sorted((dt, lo, uppers[dt]) for dt, lo in lower
+                                if dt in uppers and 0 <= lo <= uppers[dt] <= 30
+                                and uppers[dt]-lo <= 1)
+                if not points:
+                    raise ValueError('FRED 개별 상하한의 날짜가 일치하지 않음')
             except Exception as secondary:
-                raise ValueError('FRED: %s; Fed: %s' %
-                                 (str(primary)[:85],str(secondary)[:85]))
+                errors.append('FRED 개별: '+str(secondary)[:100])
+                try:
+                    out, stamp = parse_us_fed(fetch_text(
+                        'https://www.federalreserve.gov/monetarypolicy/openmarket.htm',8))
+                    record(out, 'Federal Reserve target range', stamp)
+                    return
+                except Exception as fed_error:
+                    raise ValueError('; '.join(errors) + '; Fed: '+str(fed_error)[:90])
+
+        dt, lo, hi = points[-1]
+        stamp = current_date(dt.isoformat(), 15)
+        last_mid = (lo+hi)/2
+        previous = next(((l+h)/2 for date,l,h in reversed(points[:-1])
+                         if abs((l+h)/2-last_mid)>0.0001), None)
+        direction = 0
+        if previous is not None and (datetime.now(timezone.utc)-dt).days <= 40:
+            direction = 1 if last_mid > previous else -1
+        record({'usrate': round(last_mid,4), 'usdir': direction},
+               'FRED DFEDTARU/DFEDTARL', stamp)
 
     def kr_rate():
         # Use official ECOS when a real key has been configured in Actions Secrets.
