@@ -1,5 +1,5 @@
 {
-  "as_of": "2026-11-23T06:56:35.562415+00:00",
+  "as_of": "2026-11-23T07:13:19.680631+00:00",
   "complete": true,
   "errors": {
     "buffettKR": "HTTPError: HTTP Error 403: Forbidden",
@@ -19,7 +19,7 @@
       "source": "DRAMeXchange DDR4 16Gb 3200 session average"
     },
     "goldprice": {
-      "as_of": "2026-11-23T06:56:11+00:00",
+      "as_of": "2026-11-23T07:13:11+00:00",
       "source": "Gold API XAU spot"
     },
     "krdir": {
@@ -61,10 +61,10 @@
   },
   "pending": [],
   "values": {
-    "copperchange": -14.5,
-    "copperprice": 5.537,
+    "copperchange": -14.56,
+    "copperprice": 5.533,
     "ddrprice": 78.5,
-    "goldprice": 3624.350098,
+    "goldprice": 3629.75,
     "krdir": 0,
     "krfear": 5.4,
     "krrate": 3.0,
@@ -72,7 +72,7 @@
     "usdir": 0,
     "usfear": 9.67,
     "usrate": 3.875,
-    "wtichange": -19.34,
-    "wtiprice": 83.3
+    "wtichange": -19.7,
+    "wtiprice": 82.93
   }
 }
