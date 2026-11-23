@@ -45,6 +45,7 @@
 @media(max-width:1050px){.feed-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:620px){.feed-grid{grid-template-columns:1fr 1fr;gap:10px}.feed-panel{padding:18px}.feed-item{padding:14px;min-height:126px}.feed-number{font-size:27px}.feed-head b{font-size:18px}}
 @media(max-width:380px){.feed-grid{grid-template-columns:1fr}}
+ .macro-grid{grid-template-columns:repeat(3,minmax(0,1fr))}.macro-grid .factor{min-height:155px}.macro-grid .metric{font-size:34px;margin:14px 0 8px}@media(max-width:750px){.macro-grid{grid-template-columns:1fr}}
 </style>
 </head>
 <body><div id="load-mask" role="status" aria-live="polite"><div class="load-card"><div class="spinner"></div><h2 style="margin:0">시장 데이터 수집 중</h2><p id="load-caption">게시된 데이터 파일을 읽고 있습니다.</p><div id="load-result">데이터가 없거나 오래된 경우 수집 상태를 표시합니다.</div></div></div><main class="shell"><header><div class="brand">MARKET <em>PULSE</em><span class="pill">BUY OPPORTUNITY</span></div><div class="tag">자료별 기준일 확인 · <span id="syncstate">수집 대기 중</span></div></header>
@@ -60,8 +61,14 @@
 <article class="panel factor compact"><div class="row"><h3>😨 공포탐욕지수</h3><span class="weight">25%</span></div><div class="metric" id="usfear">—</div><div class="small">공포탐욕 수치가 낮을수록 역발상 매수 가점</div><div class="scorebar"><i id="usfearbar"></i></div></article>
 <article class="panel factor compact"><div class="row"><h3>🏦 정책금리</h3><span class="weight">20%</span></div><div class="metric"><span id="usrate">—</span><span>%</span></div><div class="small">최근 금리 결정 방향 반영</div><div class="scorebar"><i id="usratebar"></i></div></article>
 <article class="panel factor compact"><div class="row"><h3>📐 버핏지수</h3><span class="weight">10%</span></div><div class="metric"><span id="usbuffett">—</span><span>%</span></div><div class="small">자국 장기 평균 대비 저평가 정도</div><div class="scorebar"><i id="usbuffettbar"></i></div></article>
-</div></section></section><section class="panel feed-panel" aria-label="자동 데이터 수집 상태">
- <div class="feed-head"><div><b>자동 데이터 수집 현황</b><div class="small">저장된 최신 데이터 · 매시간 수집 시도</div></div><button class="btn secondary" type="button" id="refresh-top">지금 다시 읽기</button></div>
+</div></section></section><section class="macro-section" aria-label="미국 물가 및 고용 지표"><div class="sectionline"><h2>미국 물가 · 고용</h2><span>FRED 공식 발표 · 수집일 별도 표시</span></div>
+<div class="grid macro-grid">
+<article class="panel factor"><h3>근원 CPI</h3><div class="metric" id="uscorecpi-display">—</div><div class="small">전년 동월 대비 · 최근 3개월 연율 <b id="uscorecpi3m-display">—</b></div></article>
+<article class="panel factor"><h3>미국 실업률</h3><div class="metric" id="usunemployment-display">—</div><div class="small">최근 3개월 변화 <b id="usunemployment3m-display">—</b> %p</div></article>
+<article class="panel factor"><h3>미국 비농업고용 증감</h3><div class="metric" id="uspayrollchange-display">—</div><div class="small">천 명 · 최근 3개월 월평균 <b id="uspayroll3m-display">—</b>천 명</div></article>
+</div><div class="small" style="margin-top:10px">고용·물가 지표는 월간 발표 자료이며, 시차와 이후 수정 가능성이 있습니다. 매수 점수는 2~3개월 수익률을 보장하지 않습니다.</div></section>
+<section class="panel feed-panel" aria-label="자동 데이터 수집 상태">
+ <div class="feed-head"><div><b>자동 데이터 수집 현황</b><div class="small">저장된 데이터 · 1시간마다 GitHub Actions 수집 · 버튼은 최신 게시본만 다시 읽음</div></div><button class="btn secondary" type="button" id="refresh-top">게시된 데이터 새로고침</button> <a class="btn secondary" target="_blank" rel="noopener" href="https://github.com/wlstyql/market-pulse/actions/workflows/collect.yml">새 데이터 수집 실행 (GitHub)</a></div>
  <div class="feed-grid" id="feed-status"><div class="small">조회 준비 중…</div></div>
  <div class="small" id="feed-note">가격만 수신되면 과거 변동률은 미확인으로 남을 수 있습니다. 자동 미지원 지표의 기존 입력값은 최신값이 아닐 수 있으므로 자료 기준일을 확인하세요.</div>
 </section>
@@ -73,10 +80,10 @@
 <article class="panel factor compact"><div class="row"><h3>🛢️ WTI 원유 선물</h3><span class="weight">5%</span></div><div class="metric">$<span id="wtiprice">—</span><span> / bbl</span></div><div class="small">최근 30일 <b id="wtichange">—</b> · 급등·급락 모두 감점</div><div class="scorebar"><i id="wtibar"></i></div></article>
 </section>
 <details class="panel settings"><summary><span>데이터 입력 및 계산 근거</span><span class="sub">직접 수정 · 자동 재계산</span></summary><div class="settings-body">
-<div class="input-cols"><section><h3>한국</h3><div class="edit-grid"><label class="field"><span>자체 산출 코스피 심리지수</span><input id="in-krfear" type="number" min="0" max="100" step="1" value=""></label><label class="field"><span>기준금리 (%)</span><input id="in-krrate" type="number" min="0" max="20" step="0.125" value=""></label><label class="field"><span>최근 금리 결정</span><select id="in-krdir"><option value="1">인상</option><option value="0" selected>동결</option><option value="-1">인하</option></select></label><label class="field"><span>버핏지수 (%)</span><input id="in-krbuffett" type="number" min="0" max="1000" step="0.01" value=""></label></div></section><section><h3>미국</h3><div class="edit-grid"><label class="field"><span>공포탐욕지수</span><input id="in-usfear" type="number" min="0" max="100" step="1" value=""></label><label class="field"><span>기준금리 (%)</span><input id="in-usrate" type="number" min="0" max="20" step="0.125" value=""></label><label class="field"><span>최근 금리 결정</span><select id="in-usdir"><option value="1">인상</option><option value="0" selected>동결</option><option value="-1">인하</option></select></label><label class="field"><span>버핏지수 (%)</span><input id="in-usbuffett" type="number" min="0" max="1000" step="0.01" value=""></label></div></section></div><section class="shared-input"><h3>양국 공통</h3><div class="edit-grid"><label class="field"><span>DDR4 가격 (USD)</span><input id="in-ddrprice" type="number" step="0.001" value=""></label><label class="field"><span>DDR4 30일 변화 (%)</span><input id="in-ddrchange" type="number" step="0.1" value=""></label><label class="field"><span>DDR4 7일 변화 (%)</span><input id="in-ddr7change" type="number" step="0.1" value=""></label><label class="field"><span>NAND 30일 변화 (%)</span><input id="in-nandchange" type="number" step="0.1" value=""></label><label class="field"><span>NAND 7일 변화 (%)</span><input id="in-nand7change" type="number" step="0.1" value=""></label><label class="field"><span>금 가격 (USD/oz)</span><input id="in-goldprice" type="number" step="0.01" value=""></label><label class="field"><span>금 30일 변화 (%)</span><input id="in-goldchange" type="number" step="0.1" value=""></label><label class="field"><span>구리 가격 (USD/lb)</span><input id="in-copperprice" type="number" step="0.01" value=""></label><label class="field"><span>구리 30일 변화 (%)</span><input id="in-copperchange" type="number" step="0.1" value=""></label><label class="field"><span>구리 상승 원인</span><select id="in-copperdriver"><option value="unknown" selected>미확인</option><option value="demand">실수요 개선</option><option value="supply">공급 차질</option></select></label><label class="field"><span>WTI 원유 가격 (USD/bbl)</span><input id="in-wtiprice" type="number" step="0.01" min="0" value=""></label><label class="field"><span>WTI 30일 변화 (%)</span><input id="in-wtichange" type="number" step="0.1" value=""></label></div></section><div class="buttonrow"><button class="btn" id="refresh" type="button">게시된 데이터 다시 읽기</button><button class="btn" id="reset" type="button">초기화</button><button class="btn secondary" id="export" type="button">CSV 저장</button></div><p class="mini-explain">공포 25% · 금리 20% · 반도체 20% · 금 10% · 구리 10% · 버핏 10% · WTI 5%. 미확인 신호는 중립 처리합니다. 공개 웹페이지에서 수집을 시도합니다. 차단·변경 시 기존 입력값이 유지됩니다. 반도체 7일/30일 변화율은 수집된 과거 기록이 충분할 때만 계산됩니다.</p><p class="mini-explain" id="syncdetail">GitHub Actions 수집 결과를 표시합니다. 수신되지 않은 지표는 빈 값으로 남깁니다.</p><div class="sources"><a target="_blank" rel="noopener" href="https://edition.cnn.com/markets/fear-and-greed">미국 공포탐욕 · CNN</a><a target="_blank" rel="noopener" href="https://finance.yahoo.com/quote/%5EKS11/">한국 심리지수 · 자체 산출 KOSPI</a><a target="_blank" rel="noopener" href="https://ecos.bok.or.kr/">한국은행 ECOS</a><a target="_blank" rel="noopener" href="https://www.federalreserve.gov/monetarypolicy.htm">미 연준</a><a target="_blank" rel="noopener" href="https://www.dramexchange.com/">DRAMeXchange 가격</a><a target="_blank" rel="noopener" href="https://www.kitco.com/">금</a><a target="_blank" rel="noopener" href="https://www.eia.gov/dnav/pet/pet_pri_spt_s1_d.htm">WTI</a><a target="_blank" rel="noopener" href="https://www.gurufocus.com/economic_indicators/4333/korea-ratio-of-total-market-cap-over-gdp">한국 버핏</a><a target="_blank" rel="noopener" href="https://www.currentmarketvaluation.com/models/buffett-indicator.php">미국 버핏 · CMV (분기)</a></div></div></details>
+<div class="input-cols"><section><h3>한국</h3><div class="edit-grid"><label class="field"><span>자체 산출 코스피 심리지수</span><input id="in-krfear" type="number" min="0" max="100" step="1" value=""></label><label class="field"><span>기준금리 (%)</span><input id="in-krrate" type="number" min="0" max="20" step="0.125" value=""></label><label class="field"><span>최근 금리 결정</span><select id="in-krdir"><option value="1">인상</option><option value="0" selected>동결</option><option value="-1">인하</option></select></label><label class="field"><span>버핏지수 (%)</span><input id="in-krbuffett" type="number" min="0" max="1000" step="0.01" value=""></label></div></section><section><h3>미국</h3><div class="edit-grid"><label class="field"><span>공포탐욕지수</span><input id="in-usfear" type="number" min="0" max="100" step="1" value=""></label><label class="field"><span>기준금리 (%)</span><input id="in-usrate" type="number" min="0" max="20" step="0.125" value=""></label><label class="field"><span>최근 금리 결정</span><select id="in-usdir"><option value="1">인상</option><option value="0" selected>동결</option><option value="-1">인하</option></select></label><label class="field"><span>버핏지수 (%)</span><input id="in-usbuffett" type="number" min="0" max="1000" step="0.01" value=""></label><label class="field"><span>미국 근원 CPI 전년비 (%)</span><input id="in-uscorecpi" type="number" step="0.01" value=""></label><label class="field"><span>미국 근원 CPI 3개월 연율 (%)</span><input id="in-uscorecpi3m" type="number" step="0.01" value=""></label><label class="field"><span>미국 실업률 (%)</span><input id="in-usunemployment" type="number" step="0.01" value=""></label><label class="field"><span>미국 실업률 3개월 변화 (%p)</span><input id="in-usunemployment3m" type="number" step="0.01" value=""></label><label class="field"><span>미국 비농업고용 월간 증가 (천 명)</span><input id="in-uspayrollchange" type="number" step="0.1" value=""></label><label class="field"><span>미국 비농업고용 3개월 월평균 (천 명)</span><input id="in-uspayroll3m" type="number" step="0.1" value=""></label></div></section></div><section class="shared-input"><h3>양국 공통</h3><div class="edit-grid"><label class="field"><span>DDR4 가격 (USD)</span><input id="in-ddrprice" type="number" step="0.001" value=""></label><label class="field"><span>DDR4 30일 변화 (%)</span><input id="in-ddrchange" type="number" step="0.1" value=""></label><label class="field"><span>DDR4 7일 변화 (%)</span><input id="in-ddr7change" type="number" step="0.1" value=""></label><label class="field"><span>NAND 30일 변화 (%)</span><input id="in-nandchange" type="number" step="0.1" value=""></label><label class="field"><span>NAND 7일 변화 (%)</span><input id="in-nand7change" type="number" step="0.1" value=""></label><label class="field"><span>금 가격 (USD/oz)</span><input id="in-goldprice" type="number" step="0.01" value=""></label><label class="field"><span>금 30일 변화 (%)</span><input id="in-goldchange" type="number" step="0.1" value=""></label><label class="field"><span>구리 가격 (USD/lb)</span><input id="in-copperprice" type="number" step="0.01" value=""></label><label class="field"><span>구리 30일 변화 (%)</span><input id="in-copperchange" type="number" step="0.1" value=""></label><label class="field"><span>구리 상승 원인</span><select id="in-copperdriver"><option value="unknown" selected>미확인</option><option value="demand">실수요 개선</option><option value="supply">공급 차질</option></select></label><label class="field"><span>WTI 원유 가격 (USD/bbl)</span><input id="in-wtiprice" type="number" step="0.01" min="0" value=""></label><label class="field"><span>WTI 30일 변화 (%)</span><input id="in-wtichange" type="number" step="0.1" value=""></label></div></section><div class="buttonrow"><button class="btn" id="refresh" type="button">게시된 데이터 다시 읽기</button><button class="btn" id="reset" type="button">초기화</button><button class="btn secondary" id="export" type="button">CSV 저장</button></div><p class="mini-explain">기존 7개 지표 85%(미국)/92%(한국), 미국 물가·고용 15%(미국)/8%(한국). 미확인 신호는 중립 처리합니다. 공개 웹페이지에서 수집을 시도합니다. 차단·변경 시 기존 입력값이 유지됩니다. 반도체 7일/30일 변화율은 수집된 과거 기록이 충분할 때만 계산됩니다.</p><p class="mini-explain" id="syncdetail">GitHub Actions 수집 결과를 표시합니다. 수신되지 않은 지표는 빈 값으로 남깁니다.</p><div class="sources"><a target="_blank" rel="noopener" href="https://edition.cnn.com/markets/fear-and-greed">미국 공포탐욕 · CNN</a><a target="_blank" rel="noopener" href="https://finance.yahoo.com/quote/%5EKS11/">한국 심리지수 · 자체 산출 KOSPI</a><a target="_blank" rel="noopener" href="https://ecos.bok.or.kr/">한국은행 ECOS</a><a target="_blank" rel="noopener" href="https://www.federalreserve.gov/monetarypolicy.htm">미 연준</a><a target="_blank" rel="noopener" href="https://www.dramexchange.com/">DRAMeXchange 가격</a><a target="_blank" rel="noopener" href="https://www.kitco.com/">금</a><a target="_blank" rel="noopener" href="https://www.eia.gov/dnav/pet/pet_pri_spt_s1_d.htm">WTI</a><a target="_blank" rel="noopener" href="https://www.gurufocus.com/economic_indicators/4333/korea-ratio-of-total-market-cap-over-gdp">한국 버핏</a><a target="_blank" rel="noopener" href="https://www.currentmarketvaluation.com/models/buffett-indicator.php">미국 버핏 · CMV (분기)</a></div></div></details>
 <div class="footer">MARKET PULSE · 자동 수집 성공/실패 상태를 확인하세요 · 수동 데이터는 별도 확인 필요 · 1시간마다 조회</div></main>
 <script>
-const ids=['krfear','usfear','krrate','usrate','krdir','usdir','ddrprice','ddrchange','ddr7change','nandchange','nand7change','goldprice','goldchange','copperprice','copperchange','copperdriver','wtiprice','wtichange','krbuffett','usbuffett'];
+const ids=['krfear','usfear','krrate','usrate','krdir','usdir','ddrprice','ddrchange','ddr7change','nandchange','nand7change','goldprice','goldchange','copperprice','copperchange','copperdriver','wtiprice','wtichange','krbuffett','usbuffett','uscorecpi','uscorecpi3m','usunemployment','usunemployment3m','uspayrollchange','uspayroll3m'];
 const $=id=>document.getElementById(id),clamp=(v,min,max)=>Math.max(min,Math.min(max,v));
 const initial=Object.fromEntries(ids.map(k=>[k,$('in-'+k).value]));
 const fmt=(n,d=1)=>Number(n).toLocaleString('ko-KR',{minimumFractionDigits:d,maximumFractionDigits:d});
@@ -92,20 +99,37 @@ function wti(change){if(change===null)return 5.5;return clamp(9-Math.max(0,Math.
 function buffett(ratio,avg){if(ratio===null)return 5.5;return clamp(5.5-3.5*(ratio/avg-1),1,10)}
 function setbar(id,v){$(id).style.width=(clamp(v,1,10)-1)/9*100+'%'}
 function scoreState(x){return x<3.5?['매수 신중','단기 분할매수 신호가 약한 구간입니다.']:x<6.5?['중립·관망','신호가 혼재된 구간입니다.']:x<8.5?['분할매수 검토','상대적으로 매수 신호가 우세합니다.']:['매수 매력 높음','여러 매수 신호가 동시에 나타납니다.']}
-function score(m,f,r,s,g,c,b,w){const adj=clamp(5.5+(s-5.5)*(m==='kr'?1.15:.85),1,10);return clamp(f*.25+r*.20+adj*.20+g*.10+c*.10+b*.10+w*.05,1,10)}
+function macroScore(o){
+ const cp=val(o,'uscorecpi3m')??val(o,'uscorecpi');
+ // Disinflation without deflation is favorable; elevated core inflation is penalized.
+ const ci=cp===null?5.5:clamp(8-Math.max(0,cp-2)*1.4,1,10);
+ const ud=val(o,'usunemployment3m');
+ // Flat/slowly rising unemployment is tolerable; rapid rise is a recession warning.
+ const un=ud===null?5.5:clamp(7.5-Math.max(0,ud)*10-Math.max(0,-ud-0.2)*3,1,10);
+ const pm=val(o,'uspayroll3m')??val(o,'uspayrollchange');
+ // Modest job growth preferred; very negative growth is a warning.
+ const nf=pm===null?5.5:clamp(5.5+pm/80,1,9);
+ return ci*.40+un*.35+nf*.25;
+}
+function score(m,f,r,s,g,c,b,w,macro){
+ const adj=clamp(5.5+(s-5.5)*(m==='kr'?1.15:.85),1,10);
+ const base=f*.25+r*.20+adj*.20+g*.10+c*.10+b*.10+w*.05;
+ const weight=m==='us'?.15:.08;return clamp(base*(1-weight)+macro*weight,1,10);
+}
 function update(){
  const o={};for(const id of ids){const e=$('in-'+id);o[id]=id==='copperdriver'?e.value:e.value===''?null:Number(e.value);if(o[id]!==null&&id!=='copperdriver'&&!Number.isFinite(o[id]))return}
  const fkr=sentiment(val(o,'krfear')??50),fus=sentiment(val(o,'usfear')??50),rkr=rates(val(o,'krdir')??0),rus=rates(val(o,'usdir')??0);
  const s=semi(val(o,'ddrchange'),val(o,'ddr7change'),val(o,'nandchange'),val(o,'nand7change'));
  const g=gold(),c=copper(val(o,'copperchange'),o.copperdriver),w=wti(val(o,'wtichange'));
- const bkr=buffett(val(o,'krbuffett'),111.31),bus=buffett(val(o,'usbuffett'),168.84);
- for(const [key,value] of [['kr',score('kr',fkr,rkr,s,g,c,bkr,w)],['us',score('us',fus,rus,s,g,c,bus,w)]]){const state=scoreState(value);$(key+'score').textContent=fmt(value);$(key+'state').textContent=state[0];$(key+'pin').style.left=(value-1)/9*100+'%';$(key+'insight').textContent=state[1]}
+ const bkr=buffett(val(o,'krbuffett'),111.31),bus=buffett(val(o,'usbuffett'),168.84),macro=macroScore(o);
+ for(const [key,value] of [['kr',score('kr',fkr,rkr,s,g,c,bkr,w,macro)],['us',score('us',fus,rus,s,g,c,bus,w,macro)]]){const state=scoreState(value);$(key+'score').textContent=fmt(value);$(key+'state').textContent=state[0];$(key+'pin').style.left=(value-1)/9*100+'%';$(key+'insight').textContent=state[1]}
  function show(id,v,d=1){$(id).textContent=v===null?'미입력':fmt(v,d)}
  function percent(id,v){$(id).textContent=v===null?'미입력':(v>0?'+':'')+fmt(v)+'%'}
  show('krfear',o.krfear,0);show('usfear',o.usfear,0);show('krrate',o.krrate,2);show('usrate',o.usrate,3);
  show('ddrprice',o.ddrprice,2);percent('ddrchange',o.ddrchange);percent('ddr7change',o.ddr7change);percent('nandchange',o.nandchange);percent('nand7change',o.nand7change);
  show('goldprice',o.goldprice,0);percent('goldchange',o.goldchange);show('copperprice',o.copperprice,2);percent('copperchange',o.copperchange);
  show('wtiprice',o.wtiprice,2);percent('wtichange',o.wtichange);show('krbuffett',o.krbuffett,2);show('usbuffett',o.usbuffett,2);
+ for(const [key,precision,suffix] of [['uscorecpi',2,'%'],['uscorecpi3m',2,'%'],['usunemployment',2,'%'],['usunemployment3m',2,''],['uspayrollchange',1,'천 명'],['uspayroll3m',1,'']]) {const el=$(key+'-display');if(el)el.textContent=o[key]===null?'—':fmt(o[key],precision)+suffix;}
  for(const [id,v] of [['krfearbar',fkr],['usfearbar',fus],['krratebar',rkr],['usratebar',rus],['krbuffettbar',bkr],['usbuffettbar',bus],['semibar',s],['goldbar',g],['copperbar',c],['wtibar',w]])setbar(id,v)
 }
 for(const id of ids){$('in-'+id).addEventListener('input',update);$('in-'+id).addEventListener('change',update)}
@@ -113,8 +137,8 @@ $('reset').addEventListener('click',()=>{ids.forEach(id=>$('in-'+id).value=initi
 $('export').addEventListener('click',()=>{const rows=[['metric','value'],...ids.map(id=>[id,$('in-'+id).value]),['kr_score',$('krscore').textContent],['us_score',$('usscore').textContent]];const blob=new Blob(['\ufeff'+rows.map(r=>r.join(',')).join('\r\n')],{type:'text/csv;charset=utf-8'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='market_buy_opportunity_snapshot.csv';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000)});
 // 공개 웹 API를 브라우저에서 직접 조회한다. 확인되지 않은 값은 절대 덮어쓰지 않는다.
 // Gold API: https://gold-api.com/docs (CORS 공개). FRED: 공식 공개 CSV, cors.dev 무료 프록시 경유.
-const FEED_KEYS=['gold','copper','wti','usRate','krRate','usFear','krFear','semiconductor','buffettKR','buffettUS'];
-const FEED_LABEL={gold:'금 현물',copper:'구리 현물',wti:'WTI',usRate:'미국 기준금리',krRate:'한국 기준금리',usFear:'미국 공포탐욕',krFear:'한국 심리지수(자체 산출)',semiconductor:'반도체 현물',buffettKR:'한국 버핏지수',buffettUS:'미국 버핏지수'};
+const FEED_KEYS=['gold','copper','wti','usRate','krRate','usFear','krFear','semiconductor','buffettKR','buffettUS','usCoreCPI','usUnemployment','usPayrolls'];
+const FEED_LABEL={gold:'금 현물',copper:'구리 현물',wti:'WTI',usRate:'미국 기준금리',krRate:'한국 기준금리',usFear:'미국 공포탐욕',krFear:'한국 심리지수(자체 산출)',semiconductor:'반도체 현물',buffettKR:'한국 버핏지수',buffettUS:'미국 버핏지수',usCoreCPI:'미국 근원 CPI',usUnemployment:'미국 실업률',usPayrolls:'미국 비농업고용'};
 const feedState=Object.fromEntries(FEED_KEYS.map(k=>[k,{type:'manual',fields:[],values:{}}]));
 const FIELD_INFO={
  goldprice:['금 현물','USD/oz',2],goldchange:['금 30일 변화','%',2],
@@ -125,7 +149,7 @@ const FIELD_INFO={
  usfear:['미국 공포탐욕','/100',1],krfear:['한국 자체 심리지수','/100',1],
  ddrprice:['DDR4 현물','USD',3],ddrchange:['DDR4 30일 변화','%',2],ddr7change:['DDR4 7일 변화','%',2],
  nandchange:['NAND 30일 변화','%',2],nand7change:['NAND 7일 변화','%',2],
- krbuffett:['한국 버핏지수','%',2],usbuffett:['미국 버핏지수','%',2]
+ krbuffett:['한국 버핏지수','%',2],usbuffett:['미국 버핏지수','%',2],uscorecpi:['미국 근원 CPI 전년비','%',2],uscorecpi3m:['근원 CPI 3개월 연율','%',2],usunemployment:['미국 실업률','%',2],usunemployment3m:['실업률 3개월 변화','%p',2],uspayrollchange:['비농업고용 월간 증감','천 명',1],uspayroll3m:['비농업고용 3개월 평균','천 명',1]
 };
 function feedNumber(key,n){
  const [,unit,precision]=FIELD_INFO[key]||[key,'',2];
@@ -170,8 +194,8 @@ function setInputValue(id,num){
  e.value=String(num);return true;
 }
 // Public static JSON generated by GitHub Actions (not a live API).
-const FEED_GROUPS={gold:['goldprice','goldchange'],copper:['copperprice','copperchange'],wti:['wtiprice','wtichange'],usRate:['usrate','usdir'],krRate:['krrate','krdir'],usFear:['usfear'],krFear:['krfear'],semiconductor:['ddrprice','ddrchange','ddr7change','nandchange','nand7change'],buffettKR:['krbuffett'],buffettUS:['usbuffett']};
-const MAIN_KEYS={gold:['goldprice'],copper:['copperprice'],wti:['wtiprice'],usRate:['usrate'],krRate:['krrate'],usFear:['usfear'],krFear:['krfear'],semiconductor:['ddrprice'],buffettKR:['krbuffett'],buffettUS:['usbuffett']};
+const FEED_GROUPS={gold:['goldprice','goldchange'],copper:['copperprice','copperchange'],wti:['wtiprice','wtichange'],usRate:['usrate','usdir'],krRate:['krrate','krdir'],usFear:['usfear'],krFear:['krfear'],semiconductor:['ddrprice','ddrchange','ddr7change','nandchange','nand7change'],buffettKR:['krbuffett'],buffettUS:['usbuffett'],usCoreCPI:['uscorecpi','uscorecpi3m'],usUnemployment:['usunemployment','usunemployment3m'],usPayrolls:['uspayrollchange','uspayroll3m']};
+const MAIN_KEYS={gold:['goldprice'],copper:['copperprice'],wti:['wtiprice'],usRate:['usrate'],krRate:['krrate'],usFear:['usfear'],krFear:['krfear'],semiconductor:['ddrprice'],buffettKR:['krbuffett'],buffettUS:['usbuffett'],usCoreCPI:['uscorecpi','uscorecpi3m'],usUnemployment:['usunemployment','usunemployment3m'],usPayrolls:['uspayrollchange','uspayroll3m']};
 function showMissingScore(){
  for(const k of ['kr','us']){
    $(k+'score').textContent='—';$(k+'state').textContent='자료 대기';$(k+'insight').textContent='수집 데이터가 아직 없습니다.';
@@ -180,10 +204,11 @@ function showMissingScore(){
 async function refresh(){
  if(fetching)return;
  fetching=true;
+ for(const id of ['refresh','refresh-top'])$(id).disabled=true;
  const mask=$('load-mask');mask.hidden=false;
  const abort=new AbortController();
  const timer=setTimeout(()=>abort.abort(),6000);
- $('syncstate').textContent='게시된 시장 데이터 확인 중';
+ $('syncstate').textContent='GitHub에 게시된 최신 JSON 조회 중';
  try{
   const res=await fetch('./market_data.json?t='+Date.now(),{cache:'no-store',signal:abort.signal});
   if(!res.ok)throw new Error('데이터 파일 HTTP '+res.status);
@@ -203,7 +228,7 @@ async function refresh(){
      const primary=MAIN_KEYS[name].find(f=>accepted.includes(f))||accepted[0];
      const observation=data.metadata?.[primary];
      const originalAge=Date.now()-Date.parse(observation?.as_of);
-     const oldObservation=!Number.isFinite(originalAge)||originalAge> (name==='buffettUS'?240:name==='buffettKR'?120:name==='krRate'?400:name==='usRate'?30:8)*24*HOUR;
+     const oldObservation=!Number.isFinite(originalAge)||originalAge> (name==='buffettUS'?240:name==='buffettKR'?120:name==='krRate'?400:name==='usRate'?30:['usCoreCPI','usUnemployment','usPayrolls'].includes(name)?75:8)*24*HOUR;
      setFeed(name,(stale||oldObservation||observation?.carried_forward)?'fail':'ok',accepted,data.values);
    }
    else setFeed(name,'fail');
@@ -211,14 +236,14 @@ async function refresh(){
   if(count)update();else showMissingScore();
   $('syncstate').textContent=(stale?'오래된 수집 자료 · ':'최근 수집 · ')+groups+'개 지표 · '+(data.as_of?new Date(data.as_of).toLocaleString('ko-KR'):'기준시각 미상');
   $('feed-note').textContent=stale?'마지막 수집이 3시간 이상 지났습니다. 표시된 값은 최신 자료가 아닙니다.':'자동 수집하지 못한 항목은 — 로 표시됩니다. 수집 자료 기준일은 상단에 표시합니다.';
-  $('syncdetail').textContent='수집 기준일: '+(data.as_of||'없음')+' · 수치 '+count+'개 · 수집 결과 확인';
+  $('syncdetail').textContent='게시 데이터 기준일: '+(data.as_of||'없음')+' · 숫자 '+count+'개 · 마지막 확인: '+new Date().toLocaleTimeString('ko-KR');
  }catch(e){
   showMissingScore();
   for(const k of FEED_KEYS)setFeed(k,'fail');
   $('syncstate').textContent='데이터 수신 실패';
   $('feed-note').textContent='시장 데이터 JSON 파일을 읽지 못했습니다: '+String(e.message||e);
  }finally{
-  clearTimeout(timer);mask.hidden=true;lastAutoCheck=Date.now();fetching=false;
+  clearTimeout(timer);mask.hidden=true;lastAutoCheck=Date.now();fetching=false;for(const id of ['refresh','refresh-top'])$(id).disabled=false;
  }
 }
 $('refresh').addEventListener('click',refresh);

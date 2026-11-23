@@ -309,63 +309,38 @@ def parse_us_buffett(raw):
 
 
 def parse_kr_buffett(raw):
-    """Korea original total-market-cap/GDP ratio, not adjusted Buffett ratio.
-
-    GuruFocus pages have different spacing and may show both original and
-    central-bank-adjusted ratios. Anchor to the original ratio only.
-    """
-    text = visible_text(raw)
-    original = re.search(
-        r'(?:Korea\s+)?Ratio\s+of\s+Total\s+Market\s+Cap\s+over\s+GDP'
-        r'(?=\s*[:\-]|\s+is\s+currently|\s+was\s+|\s+for\s+Korea)',
-        text, re.I)
-    if not original:
-        raise ValueError('한국 오리지널 버핏지수 표제를 찾지 못함')
-
-    # Some pages put the date in the title, others in a footer.
-    date_match = re.search(r'\bAs\s+of\s+(20\d{2}-\d{2}-\d{2})', text, re.I)
-    if date_match:
-        dt = date_ymd(date_match.group(1))
+    """GuruFocus Korea valuation, using only the ORIGINAL TMC/GDP ratio."""
+    text=visible_text(raw)
+    # economic_indicators/4333 page includes "As of 2026-11-21".
+    m=re.search(r'(?:As of|as of)\s+(20\d{2}-\d{2}-\d{2})',text)
+    if m:
+        dt=date_ymd(m.group(1))
     else:
-        date_match = re.search(r'Updated\s+at\s+\w+,\s*(\d{1,2})\s+([A-Za-z]{3})\s+(20\d{2})', text, re.I)
-        if not date_match:
-            date_match = re.search(r'Latest\s+Period\s+(20\d{2}-\d{2}-\d{2})', text, re.I)
-            if not date_match:
-                raise ValueError('한국 버핏지수 자료 기준일 누락')
-            dt = date_ymd(date_match.group(1))
+        # global-market-valuation page: "Updated at Sat, 21 Nov 2026 ..."
+        m=re.search(r'Updated at\s+\w+,\s*(\d{1,2})\s+([A-Za-z]{3})\s+(20\d{2})',text,re.I)
+        if m:
+            dt=datetime.strptime(' '.join(m.groups()),'%d %b %Y').replace(tzinfo=timezone.utc)
         else:
-            dt = datetime.strptime(' '.join(date_match.groups()), '%d %b %Y').replace(tzinfo=timezone.utc)
-    stamp = check_age(dt, 120)
-
-    # First use the figure directly beside the heading (as on economic_indicators/4333).
-    local = text[original.start(): original.start()+240]
-    patterns = (
-        r'Ratio\s+of\s+Total\s+Market\s+Cap\s+over\s+GDP\s*:\s*([\d,.]+)\s*%',
-        r'Ratio\s+of\s+Total\s+Market\s+Cap\s+over\s+GDP\s+is\s+currently\s*([\d,.]+)\s*%',
-        r'Ratio\s+of\s+Total\s+Market\s+Cap\s+over\s+GDP\s+was\s*([\d,.]+)\s*',
+            # The indicators page sometimes uses a table instead of the headline.
+            period=re.search(r'Latest\s+Period\s*[:|]?\s*(20\d{2}-\d{2}-\d{2})',text,re.I)
+            if not period:
+                raise ValueError('한국 버핏지수 기준일을 찾지 못함 (웹 접근 제한/형식 변경 확인)')
+            dt=date_ymd(period.group(1))
+    stamp=check_age(dt,120)
+    patterns=(
+        r'Korea Ratio of Total Market Cap over GDP\s*:\s*([\d.,]+)\s*%',
+        r'Korea Ratio of Total Market Cap over GDP\s+is currently\s*([\d.,]+)\s*%',
+        r'Ratio of total market cap over GDP\s*:\s*Recent.{0,140}?current\s*[-:]\s*([\d.,]+)\s*%',
+        r'current ratio of total market cap over GDP for Korea is\s*([\d.,]+)\s*%',
+        r'Last Value\s*([\d.,]+)\s*%',
     )
-    for pattern in patterns:
-        match = re.search(pattern, local, re.I)
-        if match:
-            return {'krbuffett': valid(float(match.group(1).replace(',', '')), 20, 500)}, stamp
-
-    # Global-valuation page labels the original ratio's range then 'current - N%'.
-    section_match = re.search(
-        r'Ratio\s+of\s+total\s+market\s+cap\s+over\s+GDP\s*:'
-        r'(?P<section>.{0,300}?)(?=Expected\s+future\s+annual\s+return|'
-        r'Ratio\s+of\s+total\s+market\s+cap\s+over\s+GDP\s+plus)',
-        text, re.I)
-    if section_match:
-        match = re.search(r'current\s*[-:]\s*([\d,.]+)\s*%', section_match.group('section'), re.I)
-        if match:
-            return {'krbuffett': valid(float(match.group(1).replace(',', '')), 20, 500)}, stamp
-
-    # Indicator detail pages also expose a last-value table.
-    if 'Korea Ratio of Total Market Cap over GDP' in text:
-        match = re.search(r'Last\s+Value\s*([\d,.]+)\s*%', text, re.I)
-        if match:
-            return {'krbuffett': valid(float(match.group(1).replace(',', '')), 20, 500)}, stamp
-    raise ValueError('한국 버핏지수 원형 TMC/GDP 숫자 추출 실패')
+    for pat in patterns:
+        try:
+            ratio=find_float(pat,text)
+            return {'krbuffett':valid(ratio,20,500)},stamp
+        except ValueError:
+            continue
+    raise ValueError('한국 버핏지수 원형 TMC/GDP 수치를 찾지 못함')
 
 
 class LocalPriceHistory:

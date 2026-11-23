@@ -115,19 +115,113 @@ def kospi_sentiment():
     return {'krfear': score}, stamp
 
 
-def fred(identifier):
-    start=(datetime.now(timezone.utc)-timedelta(days=100)).strftime('%Y-%m-%d')
+def fred(identifier, history_days=500):
+    """FRED public CSV; recognizes DATE and observation_date, missing observations and 429 errors."""
+    start=(datetime.now(timezone.utc)-timedelta(days=history_days)).strftime('%Y-%m-%d')
     url='https://fred.stlouisfed.org/graph/fredgraph.csv?' + urlencode({'id':identifier,'cosd':start})
-    raw = get_bytes(url, timeout=7).decode('utf-8-sig')
-    rows = []
+    raw=get_bytes(url, timeout=8).decode('utf-8-sig')
+    rows=[]
     for row in csv.DictReader(io.StringIO(raw)):
-        val = row.get(identifier)
-        if val and val != '.':
-            try: rows.append((datetime.strptime(row.get('observation_date') or row.get('DATE'), '%Y-%m-%d').replace(tzinfo=timezone.utc), float(val)))
-            except (ValueError, KeyError): pass
-    if not rows: raise ValueError('no data')
-    current_date(rows[-1][0].isoformat(), 14)
+        date_str=row.get('observation_date') or row.get('DATE') or row.get('date')
+        val=row.get(identifier)
+        if date_str and val not in (None,'','.','NaN'):
+            try:
+                point=(datetime.strptime(date_str.strip(),'%Y-%m-%d').replace(tzinfo=timezone.utc),float(val))
+                if math.isfinite(point[1]): rows.append(point)
+            except (ValueError,TypeError): pass
+    if not rows: raise ValueError('FRED '+identifier+' CSV has no numeric observations')
+    rows.sort(key=lambda p:p[0])
     return rows
+
+
+def last_series(identifier, history_days=500, max_age=60):
+    rows=fred(identifier,history_days)
+    current_date(rows[-1][0].isoformat(),max_age)
+    return rows
+
+
+def bls_monthly_history():
+    """BLS public API v1 fallback, one request for 3 official monthly series.
+    No login or registration key. This is used only if FRED fails.
+    """
+    now=datetime.now(timezone.utc)
+    payload=json.dumps({'seriesid':['CUSR0000SA0L1E','LNS14000000','CES0000000001'],
+                        'startyear':str(now.year-2),'endyear':str(now.year)}).encode('utf-8')
+    request=Request('https://api.bls.gov/publicAPI/v1/timeseries/data/',
+                    data=payload, headers={**HEADERS,'Content-Type':'application/json'},method='POST')
+    with urlopen(request,timeout=8) as response:
+        data=json.loads(response.read(2_000_000))
+    if data.get('status')!='REQUEST_SUCCEEDED':
+        raise ValueError('BLS response status '+str(data.get('status')))
+    output={}
+    for series in data.get('Results',{}).get('series',[]):
+        observations=[]
+        for row in series.get('data',[]):
+            period=row.get('period','')
+            if not period.startswith('M') or period=='M13':continue
+            try:
+                date=datetime(int(row['year']),int(period[1:]),1,tzinfo=timezone.utc)
+                value=float(str(row['value']).replace(',',''))
+                if math.isfinite(value):observations.append((date,value))
+            except (ValueError,TypeError,KeyError):pass
+        if observations:
+            observations.sort(key=lambda v:v[0])
+            output[series['seriesID']]=observations
+    return output
+
+
+def us_macro_observations():
+    """FRED first, BLS API fallback. Partial success is published with source dates."""
+    definitions=[('CPILFESL','CUSR0000SA0L1E','usCoreCPI',550,70),
+                 ('UNRATE','LNS14000000','usUnemployment',130,55),
+                 ('PAYEMS','CES0000000001','usPayrolls',130,55)]
+    histories={}; sources={}; errors={}
+    for fred_id,bls_id,label,days,age in definitions:
+        try:
+            histories[fred_id]=last_series(fred_id,days,age)
+            sources[label]='FRED '+fred_id
+        except Exception as exc:
+            errors[label]='FRED '+type(exc).__name__+': '+str(exc)[:120]
+    if errors:
+        try:
+            backup=bls_monthly_history()
+            for fred_id,bls_id,label,_,age in definitions:
+                if fred_id not in histories and bls_id in backup:
+                    rows=backup[bls_id]
+                    current_date(rows[-1][0].isoformat(),age)
+                    histories[fred_id]=rows
+                    sources[label]='BLS '+bls_id
+                    errors.pop(label,None)
+        except Exception as exc:
+            for key in errors:
+                errors[key]+='; BLS '+type(exc).__name__+': '+str(exc)[:120]
+    result={}
+    try:
+        rows=histories['CPILFESL']
+        if len(rows)<13:raise ValueError('needs at least 13 monthly CPI points')
+        current=rows[-1][1];prior12=rows[-13][1];prior3=rows[-4][1]
+        result.update(uscorecpi=round((current/prior12-1)*100,2),
+                      uscorecpi3m=round(((current/prior3)**4-1)*100,2),
+                      uscorecpi_date=rows[-1][0].date().isoformat())
+    except KeyError:pass
+    except Exception as exc:errors['usCoreCPI']=str(exc)
+    try:
+        rows=histories['UNRATE']
+        if len(rows)<4:raise ValueError('needs 4 monthly unemployment observations')
+        result.update(usunemployment=round(rows[-1][1],2),
+                      usunemployment3m=round(rows[-1][1]-rows[-4][1],2),
+                      usunemployment_date=rows[-1][0].date().isoformat())
+    except KeyError:pass
+    except Exception as exc:errors['usUnemployment']=str(exc)
+    try:
+        rows=histories['PAYEMS']
+        if len(rows)<4:raise ValueError('needs 4 monthly payroll observations')
+        result.update(uspayrollchange=round(rows[-1][1]-rows[-2][1],1),
+                      uspayroll3m=round((rows[-1][1]-rows[-4][1])/3,1),
+                      uspayroll_date=rows[-1][0].date().isoformat())
+    except KeyError:pass
+    except Exception as exc:errors['usPayrolls']=str(exc)
+    return result,errors,sources
 
 
 def put(values, metadata, key, val, source, stamp):
@@ -193,62 +287,46 @@ def collect(progress=None):
             commodity(['GC=F'], 'goldprice', 'goldchange')
 
     def us_rate():
-        # FRED target-range upper/lower limits. The CSV date header can be
-        # DATE or observation_date depending on the export endpoint.
-        def parse_bounds(raw):
-            reader = csv.DictReader(io.StringIO(raw.decode('utf-8-sig')))
-            rows = []
-            for row in reader:
-                try:
-                    date_str = row.get('observation_date') or row.get('DATE') or row.get('date')
-                    dt = datetime.strptime(date_str, '%Y-%m-%d').replace(tzinfo=timezone.utc)
-                    lo, hi = float(row['DFEDTARL']), float(row['DFEDTARU'])
-                    if 0 <= lo <= hi <= 30 and hi - lo <= 1:
-                        rows.append((dt, lo, hi))
-                except (TypeError, KeyError, ValueError):
-                    continue
-            if not rows:
-                raise ValueError('FRED 통합 CSV에 유효한 금리 상하한이 없음')
-            return sorted(rows)
-
-        errors = []
-        start_date = (datetime.now(timezone.utc)-timedelta(days=150)).strftime('%Y-%m-%d')
+        """FRED official policy TARGET upper/lower bounds, with single-series fallback.
+        Never require the policy DECISION DATE to be recent; daily series rows are recent.
+        """
+        issues=[]
         try:
-            url = 'https://fred.stlouisfed.org/graph/fredgraph.csv?' + urlencode({
-                'id':'DFEDTARU,DFEDTARL','cosd':start_date})
-            points = parse_bounds(get_bytes(url, timeout=9))
-        except Exception as exc:
-            errors.append('FRED 통합: '+str(exc)[:100])
-            # Individual series are easier for FRED to serve consistently.
-            try:
-                upper = fred('DFEDTARU')
-                lower = fred('DFEDTARL')
-                uppers = dict(upper)
-                points = sorted((dt, lo, uppers[dt]) for dt, lo in lower
-                                if dt in uppers and 0 <= lo <= uppers[dt] <= 30
-                                and uppers[dt]-lo <= 1)
-                if not points:
-                    raise ValueError('FRED 개별 상하한의 날짜가 일치하지 않음')
-            except Exception as secondary:
-                errors.append('FRED 개별: '+str(secondary)[:100])
-                try:
-                    out, stamp = parse_us_fed(fetch_text(
-                        'https://www.federalreserve.gov/monetarypolicy/openmarket.htm',8))
-                    record(out, 'Federal Reserve target range', stamp)
-                    return
-                except Exception as fed_error:
-                    raise ValueError('; '.join(errors) + '; Fed: '+str(fed_error)[:90])
+            upper=last_series('DFEDTARU',150,25)
+            lower=last_series('DFEDTARL',150,25)
+            up={dt.date():v for dt,v in upper};lo={dt.date():v for dt,v in lower}
+            dates=sorted(set(up)&set(lo))
+            if not dates: raise ValueError('upper/lower dates do not overlap')
+            date=dates[-1];hi=up[date];low=lo[date]
+            if not (0<=low<=hi<=30 and hi-low<=1): raise ValueError('invalid rate range')
+            mid=(hi+low)/2
+            prev=next(( (up[d]+lo[d])/2 for d in reversed(dates[:-1]) if abs((up[d]+lo[d])/2-mid)>.0001),None)
+            direction=0 if prev is None else 1 if mid>prev else -1
+            # Direction should reflect only a recent CHANGE, not an old rate move.
+            if prev is not None:
+                change_date=next((d for d in reversed(dates) if (up[d]+lo[d])/2 != mid),None)
+                if change_date and (date-change_date).days>45: direction=0
+            record({'usrate':round(mid,4),'usdir':direction},'FRED DFEDTARU + DFEDTARL',date.isoformat())
+            return
+        except Exception as e: issues.append('FRED: '+str(e)[:100])
+        try:
+            out,stamp=parse_us_fed(fetch_text('https://www.federalreserve.gov/monetarypolicy/openmarket.htm',6))
+            record(out,'Federal Reserve official FOMC table',stamp)
+            return
+        except Exception as e: issues.append('Fed: '+str(e)[:100])
+        raise ValueError('; '.join(issues))
 
-        dt, lo, hi = points[-1]
-        stamp = current_date(dt.isoformat(), 15)
-        last_mid = (lo+hi)/2
-        previous = next(((l+h)/2 for date,l,h in reversed(points[:-1])
-                         if abs((l+h)/2-last_mid)>0.0001), None)
-        direction = 0
-        if previous is not None and (datetime.now(timezone.utc)-dt).days <= 40:
-            direction = 1 if last_mid > previous else -1
-        record({'usrate': round(last_mid,4), 'usdir': direction},
-               'FRED DFEDTARU/DFEDTARL', stamp)
+    def us_macro():
+        # Separate FRED series are independent, so partial successes are reported.
+        numbers,failures,sources=us_macro_observations()
+        for key,fields in [('usCoreCPI',['uscorecpi','uscorecpi3m']),
+                           ('usUnemployment',['usunemployment','usunemployment3m']),
+                           ('usPayrolls',['uspayrollchange','uspayroll3m'])]:
+            datekey={'usCoreCPI':'uscorecpi_date','usUnemployment':'usunemployment_date','usPayrolls':'uspayroll_date'}[key]
+            if datekey in numbers:
+                record({f:numbers[f] for f in fields if f in numbers},sources[key],numbers[datekey])
+            if key in failures:
+                with write_lock: errors[key]=failures[key]
 
     def kr_rate():
         # Use official ECOS when a real key has been configured in Actions Secrets.
@@ -346,7 +424,7 @@ def collect(progress=None):
     tasks=[
         ('gold',gold),('copper',lambda:commodity(['HG=F'],'copperprice','copperchange')),
         ('wti',lambda:commodity(['CL=F'],'wtiprice','wtichange')),
-        ('usRate',us_rate),('krRate',kr_rate),('krFear',kr_fear_kospi),('usFear',fear),
+        ('usRate',us_rate),('usMacro',us_macro),('krRate',kr_rate),('krFear',kr_fear_kospi),('usFear',fear),
         ('semiconductor',semiconductor),('usBuffett',us_buffett),('krBuffett',kr_buffett)
     ]
     pending.update(name for name, _ in tasks)
@@ -357,7 +435,7 @@ def collect(progress=None):
         done, unfinished = wait(futures, timeout=max(0, deadline-time.monotonic()))
         for future in unfinished:
             name = futures[future]
-            errors.setdefault(name, '6초 수집 제한 초과 · 이전 입력값 유지')
+            errors.setdefault(name, '수집 제한시간 초과 · 기존 데이터 유지')
             pending.discard(name)
             future.cancel()
     finally:
