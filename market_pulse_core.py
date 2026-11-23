@@ -289,39 +289,37 @@ def collect(progress=None):
             commodity(['GC=F'], 'goldprice', 'goldchange')
 
     def us_rate():
-        """FRED official policy TARGET upper/lower bounds, with single-series fallback.
-        Never require the policy DECISION DATE to be recent; daily series rows are recent.
+        """Use Investing.com Fed decision ACTUAL result as the displayed US rate.
+
+        FRED's TARGET upper/lower range midpoint is only a fallback and may
+        differ from the interest rate shown by Investing.com's decision calendar.
         """
-        issues=[]
+        issues = []
         try:
-            upper=last_series('DFEDTARU',150,25)
-            lower=last_series('DFEDTARL',150,25)
-            up={dt.date():v for dt,v in upper};lo={dt.date():v for dt,v in lower}
-            dates=sorted(set(up)&set(lo))
-            if not dates: raise ValueError('upper/lower dates do not overlap')
-            date=dates[-1];hi=up[date];low=lo[date]
-            if not (0<=low<=hi<=30 and hi-low<=1): raise ValueError('invalid rate range')
-            mid=(hi+low)/2
-            prev=next(( (up[d]+lo[d])/2 for d in reversed(dates[:-1]) if abs((up[d]+lo[d])/2-mid)>.0001),None)
-            direction=0 if prev is None else 1 if mid>prev else -1
-            # Direction should reflect only a recent CHANGE, not an old rate move.
-            if prev is not None:
-                change_date=next((d for d in reversed(dates) if (up[d]+lo[d])/2 != mid),None)
-                if change_date and (date-change_date).days>45: direction=0
-            record({'usrate':round(mid,4),'usdir':direction},'FRED DFEDTARU + DFEDTARL',date.isoformat())
+            out, stamp = parse_investing_fed_decision(fetch_text(
+                'https://kr.investing.com/economic-calendar/fed-interest-rate-decision-168', 9))
+            record(out, 'Investing.com Fed rate decision - actual result', stamp)
             return
-        except Exception as e: issues.append('FRED: '+str(e)[:100])
+        except Exception as exc:
+            issues.append('Investing actual: ' + str(exc)[:110])
         try:
-            out,stamp=parse_investing_fed_decision(fetch_text(
-                'https://kr.investing.com/economic-calendar/fed-interest-rate-decision-168',7))
-            record(out,'Investing.com Fed interest rate decision (actual result)',stamp)
+            upper = last_series('DFEDTARU', 150, 25)
+            lower = last_series('DFEDTARL', 150, 25)
+            up = {dt.date(): v for dt, v in upper}
+            lo = {dt.date(): v for dt, v in lower}
+            dates = sorted(set(up) & set(lo))
+            if not dates:
+                raise ValueError('No overlapping FRED dates')
+            date = dates[-1]
+            hi, low = up[date], lo[date]
+            if not (0 <= low <= hi <= 30 and hi - low <= 1):
+                raise ValueError('Invalid federal funds target range')
+            midpoint = (hi + low) / 2
+            record({'usrate': round(midpoint, 4)},
+                   'FRED target range MIDPOINT (Investing unavailable)', date.isoformat())
             return
-        except Exception as e: issues.append('Investing Fed: '+str(e)[:100])
-        try:
-            out,stamp=parse_us_fed(fetch_text('https://www.federalreserve.gov/monetarypolicy/openmarket.htm',6))
-            record(out,'Federal Reserve official FOMC table',stamp)
-            return
-        except Exception as e: issues.append('Fed: '+str(e)[:100])
+        except Exception as exc:
+            issues.append('FRED fallback: ' + str(exc)[:110])
         raise ValueError('; '.join(issues))
 
     def us_macro():
@@ -433,20 +431,16 @@ def collect(progress=None):
         record(out,'CurrentMarketValuation (quarterly public value)',stamp)
 
     def kr_buffett():
-        issues=[]
+        """Read the original GuruFocus 4333 Korea TMC/GDP headline first."""
+        url = 'https://www.gurufocus.com/economic_indicators/4333/korea-ratio-of-total-market-cap-over-gdp'
+        issues = []
         try:
-            out,stamp=parse_gookjang_buffett(fetch_text('https://gookjang.com/buffet-index',8))
-            record(out,'Gookjang.com Korea Buffett index',stamp)
+            out, stamp = parse_kr_buffett(fetch_text(url, 9))
+            record(out, 'GuruFocus 4333 Korea TMC/GDP headline', stamp)
             return
-        except Exception as e: issues.append('Gookjang: '+str(e)[:110])
-        urls=['https://www.gurufocus.com/economic_indicators/4333/korea-ratio-of-total-market-cap-over-gdp',
-              'https://www.gurufocus.com/global-market-valuation.php?country=KOR']
-        for url in urls:
-            try:
-                out,stamp=parse_kr_buffett(fetch_text(url,8))
-                record(out,'GuruFocus Korea TMC/GDP',stamp)
-                return
-            except Exception as e: issues.append('GuruFocus: '+str(e)[:110])
+        except Exception as exc:
+            issues.append('GuruFocus 4333: ' + str(exc)[:130])
+        # Same publisher; no alternate, differently defined ratio as fallback.
         raise ValueError('; '.join(issues))
 
     tasks=[

@@ -345,28 +345,30 @@ def parse_us_buffett(raw):
 
 
 def parse_kr_buffett(raw):
-    """GuruFocus 4333 headline, Basic Info, stats; original TMC/GDP only."""
-    text=visible_text(raw)
-    # Prefer latest publication period; never use historical or modified ratio.
-    d=re.search(r'Latest\s+Period\s*[:|]?\s*(20\d{2}-\d{2}-\d{2})',text,re.I)
-    if not d:d=re.search(r'As of\s+(20\d{2}-\d{2}-\d{2})',text,re.I)
-    if not d:d=re.search(r'last updated on\s+(20\d{2}-\d{2}-\d{2})',text,re.I)
-    if d: stamp=check_age(date_ymd(d.group(1)),120)
-    else:
-        m=re.search(r'Updated at\s+\w+,\s*(\d{1,2})\s+([A-Za-z]{3})\s+(20\d{2})',text,re.I)
-        if not m:raise ValueError('한국 버핏지수 기준일 미검출')
-        stamp=check_age(datetime.strptime(' '.join(m.groups()),'%d %b %Y').replace(tzinfo=timezone.utc),120)
-    pats=(
-      r'Korea Ratio of Total Market Cap over GDP\s*:\s*([\d.,]+)\s*%',
-      r'Korea Ratio of Total Market Cap over GDP\s+is currently\s*([\d.,]+)\s*%',
-      r'Last Value\s*[:|]?\s*([\d.,]+)\s*%',
-      r'Ratio of total market cap over GDP\s*:\s*Recent.{0,170}?current\s*[-:]\s*([\d.,]+)\s*%',
-      r'current ratio of total market cap over GDP for Korea is\s*([\d.,]+)\s*%',
-    )
-    for pat in pats:
-        m=re.search(pat,text,re.I)
-        if m:return {'krbuffett':valid(float(m.group(1).replace(',','')),20,500)},stamp
-    raise ValueError('GuruFocus 한국 원형 시가총액/GDP 미검출')
+    """Parse GuruFocus 4333 Korea TMC/GDP *headline*, not unrelated averages.
+
+    Example: Korea Ratio of Total Market Cap over GDP : 175.27% (As of ...)
+    A missing publication date is reported as missing instead of inventing one.
+    """
+    text = visible_text(raw)
+    # Anchor the ratio to the economic indicator title; don't accidentally read
+    # long-term average, 1-year growth, or modified Buffett index.
+    match = re.search(
+        r'Korea\s+Ratio\s+of\s+Total\s+Market\s+Cap\s+over\s+GDP\s*:\s*([\d.,]+)\s*%',
+        text, re.I)
+    if not match:
+        match = re.search(
+            r'Korea\s+Ratio\s+of\s+Total\s+Market\s+Cap\s+over\s+GDP\s+is\s+currently\s*([\d.,]+)\s*%',
+            text, re.I)
+    if not match:
+        raise ValueError('GuruFocus Korea indicator headline percentage missing')
+    value = valid(float(match.group(1).replace(',', '')), 20, 500)
+    date = re.search(r'\b(?:As of|Latest Period|last updated on)\s*[:|]?\s*(20\d{2}-\d{2}-\d{2})',
+                     text, re.I)
+    if not date:
+        raise ValueError('GuruFocus Korea indicator publication date missing')
+    stamp = check_age(date_ymd(date.group(1)), 180)
+    return {'krbuffett': value}, stamp
 
 
 class LocalPriceHistory:
