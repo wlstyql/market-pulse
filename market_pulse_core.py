@@ -270,7 +270,7 @@ def collect(progress=None):
                 official_error=str(exc)[:95]
         try:
             out,stamp=parse_kr_bok(fetch_text(
-                'https://www.bok.or.kr/portal/singl/baseRate/list.do?menuNo=200761',8))
+                'https://www.bok.or.kr/portal/singl/baseRate/list.do?menuNo=200656',8))
             record(out,'한국은행 기준금리 변경 이력',stamp)
         except Exception as exc:
             raise ValueError('한국은행 홈페이지: %s%s' %
@@ -310,7 +310,7 @@ def collect(progress=None):
         if not prices: raise ValueError('DRAM/NAND 행이 없음')
 
     def us_buffett():
-        out,stamp=parse_us_buffett(fetch_text('https://www.currentmarketvaluation.com/models/buffett-indicator.php',9))
+        out,stamp=parse_us_buffett(fetch_text('https://www.currentmarketvaluation.com/models/buffett-indicator.php',7))
         record(out,'CurrentMarketValuation (quarterly public value)',stamp)
 
     def kr_buffett():

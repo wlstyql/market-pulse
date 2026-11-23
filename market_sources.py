@@ -116,26 +116,38 @@ def parse_us_fed(raw):
 
 
 def parse_kr_bok(raw):
+    """Read the Bank of Korea historical base-rate table, not page prose.
+
+    Actual public rows look like: 2026 | 08월 27일 | 3.00.
+    Another page variant repeats the year on every row.
+    """
     text = visible_text(raw)
     marker = text.find('한국은행 기준금리 추이')
-    if marker < 0: raise ValueError('한국은행 기준금리 추이 표를 찾을 수 없음')
-    section = text[marker:marker + 9000]
+    if marker < 0:
+        raise ValueError('한국은행 기준금리 추이 표를 찾지 못함')
+    section = text[marker:marker + 15000]
+    matches = re.findall(
+        r'(?<!\d)(20\d{2})\s*[|·]?\s*(\d{1,2})\s*월\s*(\d{1,2})\s*일'
+        r'\s*[|·]?\s*(\d+(?:\.\d+)?)', section
+    )
     rows = []
-    for m in re.finditer(r'\b(20\d{2})\s*(\d{1,2})\s*월\s*(\d{1,2})\s*일\s*(-?\d+(?:\.\d+)?)', section):
-        year, month, day, rate = m.groups()
+    for year,month,day,value in matches:
         try:
-            dt = datetime(int(year), int(month), int(day), tzinfo=timezone.utc)
-            rows.append((dt, valid(float(rate), 0, 20)))
+            dt=datetime(int(year),int(month),int(day),tzinfo=timezone.utc)
+            if dt <= datetime.now(timezone.utc) + timedelta(days=1):
+                rows.append((dt, valid(float(value),0,20)))
         except ValueError:
-            pass
-    if not rows: raise ValueError('한국은행 금리 변경 표를 파싱할 수 없음')
-    rows.sort(reverse=True)
-    dt, rate = rows[0]
-    stamp = check_age(dt, 450)
-    change = rate - rows[1][1] if len(rows) > 1 else 0
-    age = (datetime.now(timezone.utc)-dt).days
-    direction = (1 if change > .001 else -1 if change < -.001 else 0) if age <= 40 else 0
-    return {'krrate': rate, 'krdir': direction}, stamp
+            continue
+    if not rows:
+        raise ValueError('한국은행 금리 표에서 변경일자/기준금리 행을 찾지 못함')
+    rows=sorted(set(rows),reverse=True)
+    dt,rate=rows[0]
+    stamp=check_age(dt,450)
+    prior=next((r for d,r in rows[1:] if d < dt),None)
+    change=rate-prior if prior is not None else 0
+    # Last decision direction reflects a transition only near its decision date.
+    direction=(1 if change>.001 else -1 if change<-.001 else 0) if (datetime.now(timezone.utc)-dt).days<=40 else 0
+    return {'krrate':rate,'krdir':direction},stamp
 
 
 def parse_stockhub(raw):
@@ -270,40 +282,60 @@ def parse_dramexchange(raw):
 
 
 def parse_us_buffett(raw):
-    """Conservative extraction restricted to explicitly labeled Buffett ratios."""
+    """CurrentMarketValuation's public quarterly Buffett indicator only."""
     text=visible_text(raw)
-    date_match=re.search(r'(?:Updated on|As of|Last Updated)\s+([A-Za-z]+)\s+(\d{1,2}),?\s+(20\d{2})',text,re.I)
-    if not date_match: raise ValueError('미국 버핏지수 발표 날짜 미확인')
-    stamp=check_age(date_us_month(*date_match.groups()),230)
-    patterns=[
-        r'Buffett Indicator\s*=\s*\$[\d.,]+T\s*/\s*\$[\d.,]+T\s*=\s*([\d.,]+)\s*%',
+    # On this site the update date is shown in the page header; the numeric
+    # value is in an independent equation lower on the same page.
+    m=re.search(r'Updated on\s+([A-Za-z]+)\s+(\d{1,2}),?\s+(20\d{2})',text,re.I)
+    if not m:
+        raise ValueError('미국 버핏지수 공개 업데이트 날짜 없음')
+    stamp=check_age(date_us_month(*m.groups()),240)
+    section=text[text.find('The Buffett Indicator'):]
+    patterns=(
+        # "Buffett Indicator = $78.10T / $32.06T = 244%"
+        r'Buffett Indicator\s*=\s*\$[\d.,]+\s*T\s*/\s*\$[\d.,]+\s*T\s*=\s*([\d.,]+)\s*%',
+        # "Buffett Indicator = $78.10T / $32.06T = 244%" after split headers
+        r'Buffett Indicator\s*=.{0,160}?=\s*([\d.,]+)\s*%',
+        r'current ratio of\s+([\d.,]+)\s*%',
         r'(?:Current )?Buffett Indicator\s*(?:is|:|=|at)\s*([\d.,]+)\s*%',
-        r'Current (?:Buffett Indicator|Ratio of Total Market Cap to GDP)\s*(?::|is|at)\s*([\d.,]+)\s*%'
-    ]
+    )
     for pat in patterns:
         try:
-            ratio=find_float(pat,text)
+            ratio=find_float(pat,section)
             return {'usbuffett':valid(ratio,20,500)},stamp
-        except ValueError: pass
-    raise ValueError('미국 버핏지수 표시 형식을 찾지 못함')
+        except ValueError:
+            continue
+    raise ValueError('미국 버핏지수 공개 수치 추출 실패')
 
 
 def parse_kr_buffett(raw):
+    """GuruFocus Korea valuation, using only the ORIGINAL TMC/GDP ratio."""
     text=visible_text(raw)
-    m=re.search(r'(?:As of|Updated on)\s+(20\d{2}-\d{2}-\d{2})',text,re.I)
-    if m: dt=date_ymd(m.group(1))
+    # economic_indicators/4333 page includes "As of 2026-11-21".
+    m=re.search(r'(?:As of|as of)\s+(20\d{2}-\d{2}-\d{2})',text)
+    if m:
+        dt=date_ymd(m.group(1))
     else:
-        m=re.search(r'Updated at\s+\w+,\s*(\d{1,2})\s+(\w{3})\s+(20\d{2})',text,re.I)
-        if not m: raise ValueError('한국 버핏지수 기준일을 찾지 못함')
+        # global-market-valuation page: "Updated at Sat, 21 Nov 2026 ..."
+        m=re.search(r'Updated at\s+\w+,\s*(\d{1,2})\s+([A-Za-z]{3})\s+(20\d{2})',text,re.I)
+        if not m:
+            raise ValueError('한국 버핏지수 기준일을 찾지 못함')
         dt=datetime.strptime(' '.join(m.groups()),'%d %b %Y').replace(tzinfo=timezone.utc)
     stamp=check_age(dt,120)
-    for pat in (r'(?:current\s*[-:]\s*|currently\s+)([\d.,]+)\s*%',
-                r'(?:Korea|South Korea).{0,90}?(?:Market Cap to GDP|Buffett Indicator).{0,75}?([\d.,]+)\s*%'):
+    patterns=(
+        r'Korea Ratio of Total Market Cap over GDP\s*:\s*([\d.,]+)\s*%',
+        r'Korea Ratio of Total Market Cap over GDP\s+is currently\s*([\d.,]+)\s*%',
+        r'Ratio of total market cap over GDP\s*:\s*Recent.{0,140}?current\s*[-:]\s*([\d.,]+)\s*%',
+        r'current ratio of total market cap over GDP for Korea is\s*([\d.,]+)\s*%',
+        r'Last Value\s*([\d.,]+)\s*%',
+    )
+    for pat in patterns:
         try:
             ratio=find_float(pat,text)
             return {'krbuffett':valid(ratio,20,500)},stamp
-        except ValueError: pass
-    raise ValueError('한국 버핏지수 페이지에서 비율을 찾지 못함')
+        except ValueError:
+            continue
+    raise ValueError('한국 버핏지수 원형 TMC/GDP 수치를 찾지 못함')
 
 
 class LocalPriceHistory:

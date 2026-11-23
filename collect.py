@@ -9,7 +9,7 @@ from datetime import datetime, timezone, timedelta
 import market_pulse_core as core
 
 OUTPUT = Path(__file__).parent / 'docs' / 'market_data.json'
-KEEP_DAYS = {'krbuffett':120,'usbuffett':120,'krrate':60,'usrate':60}
+KEEP_DAYS = {'krbuffett':120,'usbuffett':240,'krrate':400,'usrate':30}
 
 def merge(old, new):
     now=datetime.now(timezone.utc)
@@ -28,12 +28,15 @@ def merge(old, new):
     return dict(new, values=values,metadata=meta)
 
 def main():
-    core.FETCH_DEADLINE_SECONDS=25.0  # Scheduled collector need not obey desktop 6s UI limit.
+    core.FETCH_DEADLINE_SECONDS=55.0  # Scheduled collector need not obey desktop 6s UI limit.
     old=json.loads(OUTPUT.read_text(encoding='utf8')) if OUTPUT.exists() else {}
     new=core.collect()
     merged=merge(old,new)
     OUTPUT.write_text(json.dumps(merged,ensure_ascii=False,indent=2,sort_keys=True)+'\n',encoding='utf8')
     print('Collected',len(new.get('values',{})),'new numeric fields;',len(merged['values']),'published fields')
+    for key in ('usrate','krrate','krbuffett','usbuffett'):
+        m=merged.get('metadata',{}).get(key,{})
+        print('STATUS',key,':',merged.get('values',{}).get(key,'MISSING'), 'carried_forward=',m.get('carried_forward',False), 'as_of=',m.get('as_of','unknown'))
     for k,v in new.get('errors',{}).items():print('WARN',k,':',str(v)[:130])
 
 if __name__=='__main__':main()
