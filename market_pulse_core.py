@@ -193,47 +193,89 @@ def collect(progress=None):
             commodity(['GC=F'], 'goldprice', 'goldchange')
 
     def us_rate():
-        # Avoid the FRED CSV timeout first. Fed publishes an official history without API key.
+        # FRED target bounds: one official CSV download, not two serial requests.
+        # This is the TARGET rate, not the effective fed funds rate (DFF).
         try:
-            out, stamp = parse_us_fed(fetch_text('https://www.federalreserve.gov/monetarypolicy/openmarket.htm', 8))
-            record(out, 'Federal Reserve FOMC official rate history (midpoint)', stamp)
+            start_date=(datetime.now(timezone.utc)-timedelta(days=150)).strftime('%Y-%m-%d')
+            url='https://fred.stlouisfed.org/graph/fredgraph.csv?' + urlencode({
+                'id':'DFEDTARU,DFEDTARL','cosd':start_date})
+            raw=get_bytes(url,timeout=8).decode('utf-8-sig')
+            points=[]
+            for row in csv.DictReader(io.StringIO(raw)):
+                try:
+                    upper=float(row['DFEDTARU']); lower=float(row['DFEDTARL'])
+                    dt=datetime.strptime(row['DATE'],'%Y-%m-%d').replace(tzinfo=timezone.utc)
+                    if 0 <= lower <= upper <= 30 and upper-lower <= 1:
+                        points.append((dt,lower,upper))
+                except (ValueError,TypeError,KeyError):
+                    continue
+            if not points: raise ValueError('FRED 정책금리 상하한 자료 없음')
+            dt,lower,upper=max(points,key=lambda x:x[0])
+            stamp=current_date(dt.isoformat(),15)
+            # Direction uses the most recent change in the observed series.
+            previous=next(((lo+hi)/2 for date,lo,hi in reversed(points[:-1])
+                           if abs((lo+hi)/2 - (lower+upper)/2)>0.0001),None)
+            direction=0
+            if previous is not None and (datetime.now(timezone.utc)-dt).days <= 40:
+                direction=1 if (lower+upper)/2 > previous else -1
+            record({'usrate':round((upper+lower)/2,4),'usdir':direction},
+                   'FRED DFEDTARU/DFEDTARL',stamp)
+            return
         except Exception as primary:
+            # Official Fed page fallback; never use an unrelated market rate.
             try:
-                rows = fred('DFEDTARU')
-                stamp, upper = rows[-1]
-                check = current_date(stamp.isoformat(), 14)
-                # A federal funds target range midpoint cannot be inferred from upper bound alone.
-                # Lower bound from independent FRED series required.
-                lower_rows = fred('DFEDTARL')
-                lower = lower_rows[-1][1]
-                if not 0 <= lower <= upper <= 30 or upper-lower>1: raise ValueError('미국 금리 범위 오류')
-                record({'usrate': round((upper+lower)/2,4)}, 'FRED DFEDTARU/DFEDTARL', check)
-            except Exception as fallback:
-                raise ValueError('Fed: %s; FRED: %s' % (str(primary)[:70], str(fallback)[:70]))
+                out,stamp=parse_us_fed(fetch_text(
+                    'https://www.federalreserve.gov/monetarypolicy/openmarket.htm',8))
+                record(out,'Federal Reserve FOMC target range',stamp)
+                return
+            except Exception as secondary:
+                raise ValueError('FRED: %s; Fed: %s' %
+                                 (str(primary)[:85],str(secondary)[:85]))
 
     def kr_rate():
+        # Use official ECOS when a real key has been configured in Actions Secrets.
+        key=os.environ.get('BOK_ECOS_API_KEY','').strip()
+        official_error=None
+        if key:
+            try:
+                today=datetime.now(timezone.utc)
+                start=(today-timedelta(days=180)).strftime('%Y%m%d')
+                end=today.strftime('%Y%m%d')
+                url=(f'https://ecos.bok.or.kr/api/StatisticSearch/{quote(key)}/json/kr/'
+                     f'1/100/722Y001/D/{start}/{end}/0101000')
+                payload=get_json(url)
+                if 'RESULT' in payload:
+                    raise ValueError(str(payload['RESULT'])[:130])
+                block=payload.get('StatisticSearch',{})
+                if isinstance(block,dict) and 'RESULT' in block:
+                    raise ValueError(str(block['RESULT'])[:130])
+                rows=block.get('row',[]) if isinstance(block,dict) else []
+                points=[]
+                for r in rows:
+                    try:
+                        dt=datetime.strptime(r['TIME'],'%Y%m%d').replace(tzinfo=timezone.utc)
+                        rate=float(r['DATA_VALUE'])
+                        if 0<=rate<=20: points.append((dt,rate))
+                    except (ValueError,KeyError,TypeError): pass
+                if not points: raise ValueError('ECOS 기준금리 자료가 비어 있음: 통계/항목 코드 확인 필요')
+                points.sort()
+                dt,rate=points[-1]
+                stamp=current_date(dt.isoformat(),45)
+                prev=next((r for d,r in reversed(points[:-1]) if abs(r-rate)>0.0001),None)
+                direction=(1 if prev is not None and rate>prev else
+                           -1 if prev is not None and rate<prev else 0)
+                record({'krrate':rate,'krdir':direction},'한국은행 ECOS 722Y001',stamp)
+                return
+            except Exception as exc:
+                official_error=str(exc)[:95]
         try:
-            out,stamp=parse_kr_bok(fetch_text('https://www.bok.or.kr/portal/singl/baseRate/list.do?menuNo=200761',8))
-            record(out,'한국은행 공식 기준금리 추이',stamp)
-        except Exception as official:
-            # ECOS requires user's key; no fake/sample endpoints.
-            key=os.environ.get('BOK_ECOS_API_KEY','').strip()
-            if not key: raise ValueError('한국은행 공식 페이지: '+str(official)[:95]+'; ECOS 키 미설정')
-            today=datetime.now(timezone.utc)
-            start=(today-timedelta(days=120)).strftime('%Y%m%d')
-            end=today.strftime('%Y%m%d')
-            url=f'https://ecos.bok.or.kr/api/StatisticSearch/{quote(key)}/json/kr/1/100/722Y001/D/{start}/{end}/0101000'
-            raw=get_json(url)
-            rows=raw.get('StatisticSearch',{}).get('row',[])
-            pts=[]
-            for r in rows:
-                try: pts.append((datetime.strptime(r['TIME'],'%Y%m%d').replace(tzinfo=timezone.utc),float(r['DATA_VALUE'])))
-                except (KeyError, ValueError): pass
-            if not pts: raise ValueError('ECOS에서 기준금리 데이터가 조회되지 않음')
-            pts.sort()
-            dt, rate=pts[-1]
-            stamp=current_date(dt.isoformat(), 45)
-            record({'krrate':rate},'한국은행 ECOS',stamp)
+            out,stamp=parse_kr_bok(fetch_text(
+                'https://www.bok.or.kr/portal/singl/baseRate/list.do?menuNo=200761',8))
+            record(out,'한국은행 기준금리 변경 이력',stamp)
+        except Exception as exc:
+            raise ValueError('한국은행 홈페이지: %s%s' %
+                             (str(exc)[:95],('; ECOS: '+official_error) if official_error else
+                              '; BOK_ECOS_API_KEY 미설정'))
 
     def fear():
         try:

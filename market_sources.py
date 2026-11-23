@@ -270,26 +270,40 @@ def parse_dramexchange(raw):
 
 
 def parse_us_buffett(raw):
+    """Conservative extraction restricted to explicitly labeled Buffett ratios."""
     text=visible_text(raw)
-    m=re.search(r'(?:Updated on|As of)\s+([A-Za-z]+)\s+(\d{1,2}),?\s+(20\d{2})', text, re.I)
-    if not m: raise ValueError('미국 버핏지수 기준일을 찾지 못함')
-    stamp=check_age(date_us_month(*m.groups()), 230)  # public page updates quarterly
-    ratio=find_float(r'Buffett Indicator\s*=\s*\$[\d.,]+T\s*/\s*\$[\d.,]+T\s*=\s*(\d+(?:\.\d+)?)\s*%', text)
-    return {'usbuffett':valid(ratio,20,500)},stamp
+    date_match=re.search(r'(?:Updated on|As of|Last Updated)\s+([A-Za-z]+)\s+(\d{1,2}),?\s+(20\d{2})',text,re.I)
+    if not date_match: raise ValueError('미국 버핏지수 발표 날짜 미확인')
+    stamp=check_age(date_us_month(*date_match.groups()),230)
+    patterns=[
+        r'Buffett Indicator\s*=\s*\$[\d.,]+T\s*/\s*\$[\d.,]+T\s*=\s*([\d.,]+)\s*%',
+        r'(?:Current )?Buffett Indicator\s*(?:is|:|=|at)\s*([\d.,]+)\s*%',
+        r'Current (?:Buffett Indicator|Ratio of Total Market Cap to GDP)\s*(?::|is|at)\s*([\d.,]+)\s*%'
+    ]
+    for pat in patterns:
+        try:
+            ratio=find_float(pat,text)
+            return {'usbuffett':valid(ratio,20,500)},stamp
+        except ValueError: pass
+    raise ValueError('미국 버핏지수 표시 형식을 찾지 못함')
 
 
 def parse_kr_buffett(raw):
     text=visible_text(raw)
-    # Explicit 'as of' or 'Updated at' date is necessary; date from unrelated text isn't adequate.
-    m=re.search(r'(?:As of\s+|as of\s+)(20\d{2}-\d{2}-\d{2})', text)
+    m=re.search(r'(?:As of|Updated on)\s+(20\d{2}-\d{2}-\d{2})',text,re.I)
     if m: dt=date_ymd(m.group(1))
     else:
-        m=re.search(r'Updated at\s+\w+,\s*(\d{1,2})\s+(\w{3})\s+(20\d{2})',text, re.I)
+        m=re.search(r'Updated at\s+\w+,\s*(\d{1,2})\s+(\w{3})\s+(20\d{2})',text,re.I)
         if not m: raise ValueError('한국 버핏지수 기준일을 찾지 못함')
         dt=datetime.strptime(' '.join(m.groups()),'%d %b %Y').replace(tzinfo=timezone.utc)
-    stamp=check_age(dt, 45)
-    ratio=find_float(r'(?:current\s*[-:]\s*|currently\s+)(\d+(?:\.\d+)?)\s*%', text)
-    return {'krbuffett':valid(ratio,20,500)},stamp
+    stamp=check_age(dt,120)
+    for pat in (r'(?:current\s*[-:]\s*|currently\s+)([\d.,]+)\s*%',
+                r'(?:Korea|South Korea).{0,90}?(?:Market Cap to GDP|Buffett Indicator).{0,75}?([\d.,]+)\s*%'):
+        try:
+            ratio=find_float(pat,text)
+            return {'krbuffett':valid(ratio,20,500)},stamp
+        except ValueError: pass
+    raise ValueError('한국 버핏지수 페이지에서 비율을 찾지 못함')
 
 
 class LocalPriceHistory:
