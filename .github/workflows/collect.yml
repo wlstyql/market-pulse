@@ -2,6 +2,9 @@
 name: Collect market data
 
 on:
+  push:
+    branches: [main]
+    paths: ['market_pulse_core.py', 'official_indicators.py', 'market_sources.py', 'collect.py']
   workflow_dispatch:
   schedule:
     - cron: '17 * * * *'

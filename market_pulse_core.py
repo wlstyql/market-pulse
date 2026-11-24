@@ -290,8 +290,17 @@ def collect(progress=None):
             commodity(['GC=F'], 'goldprice', 'goldchange')
 
     def us_rate():
-        """Investing.com recent release ACTUAL first; use Fed upper bound only if blocked."""
+        """Read the target range upper bound from the New York Fed daily release."""
         source_errors=[]
+        try:
+            row = get_json('https://markets.newyorkfed.org/api/rates/unsecured/effr/last/1.json')['refRates'][0]
+            rate = float(row['targetRateTo'])
+            if row['type'] != 'EFFR' or not 0 <= rate <= 30:
+                raise ValueError('Invalid Fed target upper bound')
+            record({'usrate': rate}, 'New York Fed - target range upper bound', current_date(row['effectiveDate'], 10))
+            return
+        except Exception as exc:
+            source_errors.append('New York Fed: ' + str(exc)[:110])
         try:
             rate,stamp=investing_us_rate()
             record({'usrate':rate},'Investing.com Fed interest rate decision - RESULT (actual)',stamp)
@@ -418,7 +427,12 @@ def collect(progress=None):
 
     def kr_buffett():
         """Independently calculated KRX equity cap / BOK latest annual nominal GDP."""
-        data=calculated_kr_buffett()
+        try:
+            data = calculated_kr_buffett()
+        except Exception:
+            values, stamp = parse_gookjang_buffett(fetch_text('https://gookjang.com/buffet-index', 8))
+            record(values, 'Gookjang - Korea Buffett indicator', current_date(stamp, 120))
+            return
         record({'krbuffett':data['krbuffett']},
                'CALCULATED KRX KOSPI+KOSDAQ / BOK annual nominal GDP '
                '(capKRW=' + str(data['market_cap_krw']) +
