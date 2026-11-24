@@ -4,7 +4,7 @@ name: Collect market data
 on:
   push:
     branches: [main]
-    paths: ['docs/index.html', 'market_pulse_core.py', 'official_indicators.py', 'market_sources.py', 'collect.py']
+    paths: ['.github/workflows/collect.yml', 'docs/index.html', 'market_pulse_core.py', 'official_indicators.py', 'market_sources.py', 'collect.py']
   workflow_dispatch:
   schedule:
     - cron: '17 * * * *'
@@ -22,10 +22,6 @@ jobs:
   collect:
     runs-on: ubuntu-latest
     timeout-minutes: 10
-
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
 
     steps:
       - name: Checkout repository
@@ -90,6 +86,14 @@ jobs:
         with:
           path: docs
 
+  deploy:
+    needs: collect
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
       - name: Deploy GitHub Pages
         id: deployment
-        uses: actions/deploy-pages@v4
+        uses: actions/deploy-pages@v5
