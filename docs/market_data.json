@@ -1,5 +1,5 @@
 {
-  "as_of": "2026-11-24T12:30:33.791378+00:00",
+  "as_of": "2026-11-24T23:02:17.645458+00:00",
   "complete": true,
   "errors": {},
   "metadata": {
@@ -29,7 +29,7 @@
       "source": "Yahoo Finance GC=F"
     },
     "goldprice": {
-      "as_of": "2026-11-24T12:29:44+00:00",
+      "as_of": "2026-11-24T23:01:44+00:00",
       "source": "Gold API XAU spot"
     },
     "krbuffett": {
@@ -41,7 +41,7 @@
       "source": "한국은행 기준금리 변경 이력"
     },
     "krfear": {
-      "as_of": "2026-11-24T00:00:00+00:00",
+      "as_of": "2026-11-23T00:00:00+00:00",
       "source": "자체 산출 KOSPI 심리지수 (20일 모멘텀·이평선·RSI·변동성)"
     },
     "krrate": {
@@ -73,7 +73,7 @@
       "source": "BLS CUSR0000SA0L1E"
     },
     "usfear": {
-      "as_of": "2026-11-24T12:12:16+00:00",
+      "as_of": "2026-11-24T22:43:39+00:00",
       "source": "CNN unofficial endpoint"
     },
     "uspayroll3m": {
@@ -85,7 +85,7 @@
       "source": "BLS CES0000000001"
     },
     "usrate": {
-      "as_of": "2026-11-20T00:00:00+00:00",
+      "as_of": "2026-11-23T00:00:00+00:00",
       "source": "New York Fed - target range upper bound"
     },
     "usunemployment": {
@@ -107,16 +107,16 @@
   },
   "pending": [],
   "values": {
-    "copperchange": -14.77,
-    "copperprice": 5.5195,
+    "copperchange": -15.31,
+    "copperprice": 5.4845,
     "ddr7change": -1.11,
     "ddrchange": -5.57,
     "ddrprice": 78.25,
     "goldchange": -9.99,
-    "goldprice": 3624.5,
+    "goldprice": 3561.050049,
     "krbuffett": 151.46,
     "krdir": 0,
-    "krfear": 7.1,
+    "krfear": 5.4,
     "krrate": 3.0,
     "nand7change": 0.91,
     "nandchange": 5.29,
@@ -124,13 +124,13 @@
     "usbuffett": 244.0,
     "uscorecpi": 2.87,
     "uscorecpi3m": 3.75,
-    "usfear": 15.73,
+    "usfear": 17.42,
     "uspayroll3m": 137.0,
     "uspayrollchange": 165.0,
     "usrate": 4.0,
     "usunemployment": 4.1,
     "usunemployment3m": 0.0,
-    "wtichange": -22.48,
-    "wtiprice": 80.05
+    "wtichange": -20.9,
+    "wtiprice": 81.69
   }
 }
