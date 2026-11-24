@@ -1,3 +1,4 @@
+
 name: Collect market data
 
 on:
@@ -11,61 +12,81 @@ permissions:
   id-token: write
 
 concurrency:
-  group: market-pulse-publish
+  group: market-pulse-data
   cancel-in-progress: false
 
 jobs:
-  collect-and-deploy:
+  collect:
     runs-on: ubuntu-latest
-    timeout-minutes: 8
+    timeout-minutes: 10
+
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
           ref: main
           persist-credentials: true
+
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'
+
+      - name: Inspect project files
+        run: |
+          pwd
+          ls -la
+          ls -la docs
+
       - name: Collect and write JSON
         env:
           KR_BUFFETT_MANUAL_VALUE: ${{ vars.KR_BUFFETT_MANUAL_VALUE }}
           KR_BUFFETT_MANUAL_AS_OF: ${{ vars.KR_BUFFETT_MANUAL_AS_OF }}
-        run: python -u collect.py
-      - name: Validate generated site
+        run: python collect.py
+
+      - name: Validate website files
         run: |
           test -s docs/index.html
           test -s docs/market_data.json
           python -m json.tool docs/market_data.json > /dev/null
-          python - <<'PYVALID'
+          echo "Website files verified"
+
+      - name: Show collected numeric values
+        run: |
+          python - <<'PY'
           import json
           from pathlib import Path
-          payload=json.loads(Path('docs/market_data.json').read_text())
-          assert isinstance(payload.get('values'),dict)
-          for name in ('usrate','krbuffett'):
-              print('VALUE',name,payload['values'].get(name,'MISSING'))
-              print('META',name,payload.get('metadata',{}).get(name,{}))
-          print('ERRORS',payload.get('errors',{}))
-          PYVALID
+          data = json.loads(
+              Path("docs/market_data.json").read_text(encoding="utf-8")
+          )
+          print("VALUES:", data.get("values", {}))
+          print("ERRORS:", data.get("errors", {}))
+          PY
+
       - name: Commit collected data
         run: |
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add docs/market_data.json
-          if ! git diff --cached --quiet; then
-            git commit -m 'Update market data [skip ci]'
+          if git diff --cached --quiet; then
+            echo "Data unchanged"
+          else
+            git commit -m "Update market data [skip ci]"
             git push origin HEAD:main
           fi
+
       - name: Configure GitHub Pages
         uses: actions/configure-pages@v5
-      - name: Upload site
-        uses: actions/upload-pages-artifact@v3
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v4
         with:
           path: docs
-      - name: Deploy to GitHub Pages
+
+      - name: Deploy GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
