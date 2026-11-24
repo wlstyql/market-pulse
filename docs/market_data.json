@@ -1,14 +1,17 @@
 {
-  "as_of": "2026-11-24T02:04:58.070125+00:00",
+  "as_of": "2026-11-24T02:06:54.787212+00:00",
   "complete": true,
-  "errors": {},
+  "errors": {
+    "buffettKR": "ValueError: 국장닷컴 한국 버핏 지수의 현재값/업데이트 날짜를 찾지 못함",
+    "krBuffett": "ValueError: 국장닷컴 한국 버핏 지수의 현재값/업데이트 날짜를 찾지 못함"
+  },
   "metadata": {
     "copperchange": {
-      "as_of": "2026-11-24T01:54:28+00:00",
+      "as_of": "2026-11-24T01:56:28+00:00",
       "source": "Yahoo Finance HG=F"
     },
     "copperprice": {
-      "as_of": "2026-11-24T01:54:28+00:00",
+      "as_of": "2026-11-24T01:56:28+00:00",
       "source": "Yahoo Finance HG=F"
     },
     "ddr7change": {
@@ -29,11 +32,12 @@
       "source": "Yahoo Finance GC=F"
     },
     "goldprice": {
-      "as_of": "2026-11-24T02:04:13+00:00",
+      "as_of": "2026-11-24T02:06:13+00:00",
       "source": "Gold API XAU spot"
     },
     "krbuffett": {
       "as_of": "2026-11-24T00:00:00+00:00",
+      "carried_forward": true,
       "source": "Gookjang - Korea Buffett indicator"
     },
     "krdir": {
@@ -93,26 +97,26 @@
       "source": "BLS LNS14000000"
     },
     "wtichange": {
-      "as_of": "2026-11-24T01:54:31+00:00",
+      "as_of": "2026-11-24T01:56:25+00:00",
       "source": "Yahoo Finance CL=F"
     },
     "wtiprice": {
-      "as_of": "2026-11-24T01:54:31+00:00",
+      "as_of": "2026-11-24T01:56:25+00:00",
       "source": "Yahoo Finance CL=F"
     }
   },
   "pending": [],
   "values": {
-    "copperchange": -14.0,
-    "copperprice": 5.5695,
+    "copperchange": -14.19,
+    "copperprice": 5.557,
     "ddr7change": -0.79,
     "ddrchange": -5.27,
     "ddrprice": 78.5,
     "goldchange": -9.99,
-    "goldprice": 3653.350098,
+    "goldprice": 3646.800049,
     "krbuffett": 156.36,
     "krdir": 0,
-    "krfear": 10.6,
+    "krfear": 10.3,
     "krrate": 3.0,
     "nand7change": 0.91,
     "nandchange": 5.29,
@@ -125,7 +129,7 @@
     "usrate": 4.0,
     "usunemployment": 4.1,
     "usunemployment3m": 0.0,
-    "wtichange": -22.6,
-    "wtiprice": 79.93
+    "wtichange": -22.62,
+    "wtiprice": 79.91
   }
 }
