@@ -417,8 +417,9 @@ def collect(progress=None):
             stamp=stamps[field]
             # NAND price is retained only in history: the existing GUI does not display it.
             if field=='ddrprice':record({field:price},'DRAMeXchange DDR4 16Gb 3200 session average',stamp)
-            changes=PRICE_HISTORY.changes(field, price, stamp)
-            if changes: record(changes,'DRAMeXchange local observed-price history',stamp)
+            capture_day = datetime.now(timezone.utc).date().isoformat()
+            changes=PRICE_HISTORY.changes(field, price, capture_day)
+            if changes: record(changes,'DRAMeXchange daily captured session averages',capture_day)
         if not prices: raise ValueError('DRAM/NAND 행이 없음')
 
     def us_buffett():

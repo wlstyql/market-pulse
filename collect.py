@@ -29,6 +29,7 @@ def merge(old, new):
 
 def main():
     core.FETCH_DEADLINE_SECONDS=55.0  # Scheduled collector need not obey desktop 6s UI limit.
+    core.PRICE_HISTORY = core.LocalPriceHistory(OUTPUT.parent.parent / "spot_history.json")
     old=json.loads(OUTPUT.read_text(encoding='utf8')) if OUTPUT.exists() else {}
     new=core.collect()
     merged=merge(old,new)
