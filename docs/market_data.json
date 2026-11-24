@@ -1,15 +1,23 @@
 {
-  "as_of": "2026-11-24T01:58:28.758952+00:00",
+  "as_of": "2026-11-24T02:02:51.368276+00:00",
   "complete": true,
   "errors": {},
   "metadata": {
     "copperchange": {
-      "as_of": "2026-11-24T01:47:43+00:00",
+      "as_of": "2026-11-24T01:52:18+00:00",
       "source": "Yahoo Finance HG=F"
     },
     "copperprice": {
-      "as_of": "2026-11-24T01:47:43+00:00",
+      "as_of": "2026-11-24T01:52:18+00:00",
       "source": "Yahoo Finance HG=F"
+    },
+    "ddr7change": {
+      "as_of": "2026-11-24",
+      "source": "DRAMeXchange daily captured session averages"
+    },
+    "ddrchange": {
+      "as_of": "2026-11-24",
+      "source": "DRAMeXchange daily captured session averages"
     },
     "ddrprice": {
       "as_of": "2026-11-23",
@@ -21,7 +29,7 @@
       "source": "Yahoo Finance GC=F"
     },
     "goldprice": {
-      "as_of": "2026-11-24T01:57:43+00:00",
+      "as_of": "2026-11-24T02:02:13+00:00",
       "source": "Gold API XAU spot"
     },
     "krbuffett": {
@@ -39,6 +47,14 @@
     "krrate": {
       "as_of": "2026-08-27",
       "source": "한국은행 기준금리 변경 이력"
+    },
+    "nand7change": {
+      "as_of": "2026-11-24",
+      "source": "DRAMeXchange daily captured session averages"
+    },
+    "nandchange": {
+      "as_of": "2026-11-24",
+      "source": "DRAMeXchange daily captured session averages"
     },
     "usbuffett": {
       "as_of": "2026-06-30",
@@ -77,25 +93,29 @@
       "source": "BLS LNS14000000"
     },
     "wtichange": {
-      "as_of": "2026-11-24T01:48:02+00:00",
+      "as_of": "2026-11-24T01:52:21+00:00",
       "source": "Yahoo Finance CL=F"
     },
     "wtiprice": {
-      "as_of": "2026-11-24T01:48:02+00:00",
+      "as_of": "2026-11-24T01:52:21+00:00",
       "source": "Yahoo Finance CL=F"
     }
   },
   "pending": [],
   "values": {
-    "copperchange": -13.95,
-    "copperprice": 5.5725,
+    "copperchange": -13.97,
+    "copperprice": 5.571,
+    "ddr7change": -0.79,
+    "ddrchange": -5.27,
     "ddrprice": 78.5,
     "goldchange": -9.99,
-    "goldprice": 3659.399902,
+    "goldprice": 3665.0,
     "krbuffett": 156.36,
     "krdir": 0,
     "krfear": 10.8,
     "krrate": 3.0,
+    "nand7change": 0.91,
+    "nandchange": 5.29,
     "usbuffett": 244.0,
     "uscorecpi": 2.87,
     "uscorecpi3m": 3.75,
@@ -105,7 +125,7 @@
     "usrate": 4.0,
     "usunemployment": 4.1,
     "usunemployment3m": 0.0,
-    "wtichange": -22.59,
-    "wtiprice": 79.94
+    "wtichange": -22.67,
+    "wtiprice": 79.86
   }
 }
