@@ -1,14 +1,14 @@
 {
-  "as_of": "2026-11-24T02:11:21.288215+00:00",
+  "as_of": "2026-11-24T02:28:13.633043+00:00",
   "complete": true,
   "errors": {},
   "metadata": {
     "copperchange": {
-      "as_of": "2026-11-24T02:00:52+00:00",
+      "as_of": "2026-11-24T02:17:31+00:00",
       "source": "Yahoo Finance HG=F"
     },
     "copperprice": {
-      "as_of": "2026-11-24T02:00:52+00:00",
+      "as_of": "2026-11-24T02:17:31+00:00",
       "source": "Yahoo Finance HG=F"
     },
     "ddr7change": {
@@ -29,7 +29,7 @@
       "source": "Yahoo Finance GC=F"
     },
     "goldprice": {
-      "as_of": "2026-11-24T02:10:43+00:00",
+      "as_of": "2026-11-24T02:27:43+00:00",
       "source": "Gold API XAU spot"
     },
     "krbuffett": {
@@ -93,26 +93,26 @@
       "source": "BLS LNS14000000"
     },
     "wtichange": {
-      "as_of": "2026-11-24T02:00:43+00:00",
+      "as_of": "2026-11-24T02:17:30+00:00",
       "source": "Yahoo Finance CL=F"
     },
     "wtiprice": {
-      "as_of": "2026-11-24T02:00:43+00:00",
+      "as_of": "2026-11-24T02:17:30+00:00",
       "source": "Yahoo Finance CL=F"
     }
   },
   "pending": [],
   "values": {
-    "copperchange": -14.3,
-    "copperprice": 5.55,
+    "copperchange": -14.11,
+    "copperprice": 5.562,
     "ddr7change": -0.79,
     "ddrchange": -5.27,
     "ddrprice": 78.5,
     "goldchange": -9.99,
-    "goldprice": 3650.149902,
+    "goldprice": 3655.399902,
     "krbuffett": 156.36,
     "krdir": 0,
-    "krfear": 9.9,
+    "krfear": 7.1,
     "krrate": 3.0,
     "nand7change": 0.91,
     "nandchange": 5.29,
@@ -125,7 +125,7 @@
     "usrate": 4.0,
     "usunemployment": 4.1,
     "usunemployment3m": 0.0,
-    "wtichange": -22.43,
-    "wtiprice": 80.11
+    "wtichange": -22.56,
+    "wtiprice": 79.97
   }
 }
