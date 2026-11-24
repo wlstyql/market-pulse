@@ -1,5 +1,5 @@
 {
-  "as_of": "2026-11-24T01:23:10.591617+00:00",
+  "as_of": "2026-11-24T01:30:18.683129+00:00",
   "complete": true,
   "errors": {
     "buffettKR": "ValueError: GuruFocus request failed (HTTPError: HTTP Error 403: Forbidden); set KR_BUFFETT_MANUAL_VALUE and KR_BUFFETT_MANUAL_AS_OF only for a verified fallback",
@@ -8,11 +8,11 @@
   },
   "metadata": {
     "copperchange": {
-      "as_of": "2026-11-24T01:12:40+00:00",
+      "as_of": "2026-11-24T01:19:31+00:00",
       "source": "Yahoo Finance HG=F"
     },
     "copperprice": {
-      "as_of": "2026-11-24T01:12:40+00:00",
+      "as_of": "2026-11-24T01:19:31+00:00",
       "source": "Yahoo Finance HG=F"
     },
     "ddrprice": {
@@ -25,7 +25,7 @@
       "source": "Yahoo Finance GC=F"
     },
     "goldprice": {
-      "as_of": "2026-11-24T01:22:43+00:00",
+      "as_of": "2026-11-24T01:29:43+00:00",
       "source": "Gold API XAU spot"
     },
     "krdir": {
@@ -73,23 +73,23 @@
       "source": "BLS LNS14000000"
     },
     "wtichange": {
-      "as_of": "2026-11-24T01:12:37+00:00",
+      "as_of": "2026-11-24T01:19:49+00:00",
       "source": "Yahoo Finance CL=F"
     },
     "wtiprice": {
-      "as_of": "2026-11-24T01:12:37+00:00",
+      "as_of": "2026-11-24T01:19:49+00:00",
       "source": "Yahoo Finance CL=F"
     }
   },
   "pending": [],
   "values": {
-    "copperchange": -13.42,
-    "copperprice": 5.607,
+    "copperchange": -13.59,
+    "copperprice": 5.596,
     "ddrprice": 78.5,
     "goldchange": -9.99,
-    "goldprice": 3667.600098,
+    "goldprice": 3667.100098,
     "krdir": 0,
-    "krfear": 10.7,
+    "krfear": 10.9,
     "krrate": 3.0,
     "usbuffett": 244.0,
     "uscorecpi": 2.87,
@@ -99,7 +99,7 @@
     "uspayrollchange": 165.0,
     "usunemployment": 4.1,
     "usunemployment3m": 0.0,
-    "wtichange": -22.37,
-    "wtiprice": 80.17
+    "wtichange": -22.52,
+    "wtiprice": 80.01
   }
 }
