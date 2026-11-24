@@ -20,6 +20,7 @@ from pathlib import Path
 from urllib.parse import quote, urlencode
 from urllib.request import Request, urlopen
 from investing_sources import investing_macro
+from official_indicators import investing_us_rate, calculated_kr_buffett
 from market_sources import (fetch_text, parse_us_fed, parse_kr_bok, parse_stockhub,
                             parse_dramexchange, parse_us_buffett, parse_kr_buffett,
                             parse_investing_fed_decision, parse_gookjang_buffett,
@@ -289,33 +290,23 @@ def collect(progress=None):
             commodity(['GC=F'], 'goldprice', 'goldchange')
 
     def us_rate():
-        """Current Fed target UPPER BOUND, matching the published 4.00% convention.
-
-        Do NOT average upper/lower bounds; that creates 3.875% when the
-        target range is 3.75%-4.00%.  Always use a verified observation date.
-        """
-        errors = []
+        """Investing.com recent release ACTUAL first; use Fed upper bound only if blocked."""
+        source_errors=[]
         try:
-            points = last_series('DFEDTARU', 90, 10)
-            dt, rate = points[-1]
-            if not (0 <= rate <= 30):
-                raise ValueError('Invalid FRED upper target bound')
-            record({'usrate': round(rate, 4)},
-                   'FRED DFEDTARU - federal funds target UPPER bound',
-                   dt.date().isoformat())
+            rate,stamp=investing_us_rate()
+            record({'usrate':rate},'Investing.com Fed interest rate decision - RESULT (actual)',stamp)
             return
         except Exception as exc:
-            errors.append('FRED DFEDTARU: ' + str(exc)[:110])
-        # A separately verified alternative; if FRED is temporarily down,
-        # try the calendar's ACTUAL result, never its forecast/previous value.
+            source_errors.append('Investing actual: '+str(exc)[:110])
         try:
-            out, stamp = parse_investing_fed_decision(fetch_text(
-                'https://kr.investing.com/economic-calendar/fed-interest-rate-decision-168', 8))
-            record(out, 'Investing.com Fed rate decision ACTUAL result', stamp)
+            points=last_series('DFEDTARU',90,10)
+            dt,rate=points[-1]
+            if not 0<=rate<=30:raise ValueError('Invalid upper bound')
+            record({'usrate':round(rate,4)},'FRED DFEDTARU - UPPER BOUND (fallback)',dt.date().isoformat())
             return
         except Exception as exc:
-            errors.append('Investing actual: ' + str(exc)[:110])
-        raise ValueError('; '.join(errors))
+            source_errors.append('FRED fallback: '+str(exc)[:110])
+        raise ValueError('; '.join(source_errors))
 
     def us_macro():
         # Official FRED/BLS series first; Investing.com calendar is a bounded fallback.
@@ -426,31 +417,14 @@ def collect(progress=None):
         record(out,'CurrentMarketValuation (quarterly public value)',stamp)
 
     def kr_buffett():
-        """Keep GuruFocus definition.  Optional documented MANUAL fallback.
-
-        Unlike a computed KRX/GDP proxy, a manually confirmed GuruFocus
-        figure is labeled as such and is not misrepresented as an API read.
-        """
-        url = 'https://www.gurufocus.com/economic_indicators/4333/korea-ratio-of-total-market-cap-over-gdp'
-        try:
-            out, stamp = parse_kr_buffett(fetch_text(url, 8))
-            record(out, 'GuruFocus Korea TMC/GDP - directly received', stamp)
-            return
-        except Exception as exc:
-            source_error = f'{type(exc).__name__}: {exc}'
-        manual = os.environ.get('KR_BUFFETT_MANUAL_VALUE', '').strip()
-        manual_date = os.environ.get('KR_BUFFETT_MANUAL_AS_OF', '').strip()
-        if manual and manual_date:
-            from market_sources import valid, date_ymd, check_age
-            number = valid(float(manual), 20, 500)
-            stamp = check_age(date_ymd(manual_date), 180)
-            record({'krbuffett': number},
-                   'MANUALLY VERIFIED GuruFocus Korea TMC/GDP (not live API)',
-                   stamp)
-            return
-        raise ValueError('GuruFocus request failed (' + source_error[:135] +
-                         '); set KR_BUFFETT_MANUAL_VALUE and KR_BUFFETT_MANUAL_AS_OF '
-                         'only for a verified fallback')
+        """Independently calculated KRX equity cap / BOK latest annual nominal GDP."""
+        data=calculated_kr_buffett()
+        record({'krbuffett':data['krbuffett']},
+               'CALCULATED KRX KOSPI+KOSDAQ / BOK annual nominal GDP '
+               '(capKRW=' + str(data['market_cap_krw']) +
+               '; gdpKRW=' + str(data['nominal_gdp_krw']) +
+               '; GDP year=' + data['gdp_year'] + ')',
+               data['market_as_of'])
 
     tasks=[
         ('gold',gold),('copper',lambda:commodity(['HG=F'],'copperprice','copperchange')),
