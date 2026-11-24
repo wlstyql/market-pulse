@@ -1,14 +1,14 @@
 {
-  "as_of": "2026-11-24T02:35:43.795347+00:00",
+  "as_of": "2026-11-24T05:57:23.364952+00:00",
   "complete": true,
   "errors": {},
   "metadata": {
     "copperchange": {
-      "as_of": "2026-11-24T02:24:55+00:00",
+      "as_of": "2026-11-24T05:00:00+00:00",
       "source": "Yahoo Finance HG=F"
     },
     "copperprice": {
-      "as_of": "2026-11-24T02:24:55+00:00",
+      "as_of": "2026-11-24T05:00:00+00:00",
       "source": "Yahoo Finance HG=F"
     },
     "ddr7change": {
@@ -20,7 +20,7 @@
       "source": "DRAMeXchange daily captured session averages"
     },
     "ddrprice": {
-      "as_of": "2026-11-23",
+      "as_of": "2026-11-24",
       "source": "DRAMeXchange DDR4 16Gb 3200 session average"
     },
     "goldchange": {
@@ -29,7 +29,7 @@
       "source": "Yahoo Finance GC=F"
     },
     "goldprice": {
-      "as_of": "2026-11-24T02:35:13+00:00",
+      "as_of": "2026-11-24T05:56:43+00:00",
       "source": "Gold API XAU spot"
     },
     "krbuffett": {
@@ -73,7 +73,7 @@
       "source": "BLS CUSR0000SA0L1E"
     },
     "usfear": {
-      "as_of": "2026-11-23T23:59:56+00:00",
+      "as_of": "2026-11-24T01:00:00+00:00",
       "source": "CNN unofficial endpoint"
     },
     "uspayroll3m": {
@@ -97,26 +97,26 @@
       "source": "BLS LNS14000000"
     },
     "wtichange": {
-      "as_of": "2026-11-24T02:25:04+00:00",
+      "as_of": "2026-11-24T05:00:00+00:00",
       "source": "Yahoo Finance CL=F"
     },
     "wtiprice": {
-      "as_of": "2026-11-24T02:25:04+00:00",
+      "as_of": "2026-11-24T05:00:00+00:00",
       "source": "Yahoo Finance CL=F"
     }
   },
   "pending": [],
   "values": {
-    "copperchange": -14.24,
-    "copperprice": 5.554,
-    "ddr7change": -0.79,
-    "ddrchange": -5.27,
-    "ddrprice": 78.5,
+    "copperchange": -15.05,
+    "copperprice": 5.5015,
+    "ddr7change": -0.95,
+    "ddrchange": -5.42,
+    "ddrprice": 78.375,
     "goldchange": -9.99,
-    "goldprice": 3649.100098,
+    "goldprice": 3629.149902,
     "krbuffett": 156.36,
     "krdir": 0,
-    "krfear": 7.1,
+    "krfear": 7.3,
     "krrate": 3.0,
     "nand7change": 0.91,
     "nandchange": 5.29,
@@ -130,7 +130,7 @@
     "usrate": 4.0,
     "usunemployment": 4.1,
     "usunemployment3m": 0.0,
-    "wtichange": -22.61,
-    "wtiprice": 79.92
+    "wtichange": -22.8,
+    "wtiprice": 79.72
   }
 }
