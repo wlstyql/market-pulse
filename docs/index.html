@@ -140,12 +140,12 @@ $('export').addEventListener('click',()=>{const rows=[['metric','value'],...ids.
 // 공개 웹 API를 브라우저에서 직접 조회한다. 확인되지 않은 값은 절대 덮어쓰지 않는다.
 // Gold API: https://gold-api.com/docs (CORS 공개). FRED: 공식 공개 CSV, cors.dev 무료 프록시 경유.
 const FEED_KEYS=['gold','copper','wti','usRate','krRate','usFear','krFear','semiconductor','buffettKR','buffettUS','usCoreCPI','usUnemployment','usPayrolls'];
-const FEED_LABEL={gold:'금 현물',copper:'구리 현물',wti:'WTI',usRate:'미국 기준금리',krRate:'한국 기준금리',usFear:'미국 공포탐욕',krFear:'한국 심리지수(자체 산출)',semiconductor:'반도체 현물',buffettKR:'한국 버핏지수',buffettUS:'미국 버핏지수',usCoreCPI:'미국 근원 CPI',usUnemployment:'미국 실업률',usPayrolls:'미국 비농업고용'};
+const FEED_LABEL={gold:'금',copper:'구리 선물',wti:'WTI 선물',usRate:'미국 기준금리',krRate:'한국 기준금리',usFear:'미국 공포탐욕',krFear:'한국 심리지수(자체 산출)',semiconductor:'반도체 현물',buffettKR:'한국 버핏지수',buffettUS:'미국 버핏지수',usCoreCPI:'미국 근원 CPI',usUnemployment:'미국 실업률',usPayrolls:'미국 비농업고용'};
 const feedState=Object.fromEntries(FEED_KEYS.map(k=>[k,{type:'manual',fields:[],values:{}}]));
 const FIELD_INFO={
- goldprice:['금 현물','USD/oz',2],goldchange:['금 30일 변화','%',2],
- copperprice:['구리 선물','USD/lb',3],copperchange:['구리 30일 변화','%',2],
- wtiprice:['WTI 선물','USD/bbl',2],wtichange:['WTI 30일 변화','%',2],
+ goldprice:['','USD/oz',2],goldchange:['30일 변화','%',2],
+ copperprice:['','USD/lb',3],copperchange:['30일 변화','%',2],
+ wtiprice:['','USD/bbl',2],wtichange:['30일 변화','%',2],
  usrate:['미국 기준금리 · 발표 결과','%',2],usdir:['미국 금리 방향','',0],
  krrate:['한국 기준금리','%',2],krdir:['한국 금리 방향','',0],
  usfear:['미국 공포탐욕','/100',1],krfear:['한국 자체 심리지수','/100',1],
@@ -176,7 +176,7 @@ function drawFeed(){
   }else{
    for(const [i,field] of valid.entries()){
     const line=document.createElement('div');line.className=i===0?'feed-number':'feed-secondary';
-    if(i>0||valid.length>1){const label=document.createElement('span');label.className='feed-label';label.textContent=FIELD_INFO[field]?.[0]||field;line.append(label)}
+    if(FIELD_INFO[field]?.[0] && (i>0 || valid.length>1 || field.endsWith('change'))){const label=document.createElement('span');label.className='feed-label';label.textContent=FIELD_INFO[field]?.[0]||field;line.append(label)}
     const value=document.createElement('span');value.textContent=feedNumber(field,data.values[field]);line.append(value);numeric.append(line);
    }
   }
