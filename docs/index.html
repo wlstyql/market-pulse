@@ -40,7 +40,7 @@
 .feed-secondary{display:flex;gap:8px;align-items:baseline;justify-content:space-between;flex-wrap:wrap;font-variant-numeric:tabular-nums;font-weight:720;color:#e2eefa;font-size:15px}
 .feed-secondary .feed-label{font-size:11px;color:#9cb0cb;font-weight:500}
 .feed-state{margin-top:15px;font-size:11px;font-weight:700}
-.feed-state.ok{color:#65d9ad}.feed-state.fail{color:#ffbf86}.feed-state.manual{color:#9dabc0}
+.feed-state.ok{color:#65d9ad}.feed-state.old{color:#ffca73}.feed-state.fail{color:#ffbf86}.feed-state.manual{color:#9dabc0}
 #feed-note{font-size:11px;line-height:1.6;margin-top:17px}
 @media(max-width:1050px){.feed-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:620px){.feed-grid{grid-template-columns:1fr 1fr;gap:10px}.feed-panel{padding:18px}.feed-item{padding:14px;min-height:126px}.feed-number{font-size:27px}.feed-head b{font-size:18px}}
@@ -48,7 +48,7 @@
  .macro-grid{grid-template-columns:repeat(3,minmax(0,1fr))}.macro-grid .factor{min-height:155px}.macro-grid .metric{font-size:34px;margin:14px 0 8px}@media(max-width:750px){.macro-grid{grid-template-columns:1fr}}
 </style>
 </head>
-<body><div id="load-mask" role="status" aria-live="polite"><div class="load-card"><div class="spinner"></div><h2 style="margin:0">시장 데이터 수집 중</h2><p id="load-caption">게시된 데이터 파일을 읽고 있습니다.</p><div id="load-result">데이터가 없거나 오래된 경우 수집 상태를 표시합니다.</div></div></div><main class="shell"><header><div class="brand">MARKET <em>PULSE</em><span class="pill">BUY OPPORTUNITY</span></div><div class="tag">자료별 기준일 확인 · <span id="syncstate">수집 대기 중</span></div></header>
+<body><div id="load-mask" hidden role="status" aria-live="polite"><div class="load-card"><div class="spinner"></div><h2 style="margin:0">시장 데이터 수집 중</h2><p id="load-caption">게시된 데이터 파일을 읽고 있습니다.</p><div id="load-result">데이터가 없거나 오래된 경우 수집 상태를 표시합니다.</div></div></div><main class="shell"><header><div class="brand">MARKET <em>PULSE</em><span class="pill">BUY OPPORTUNITY</span></div><div class="tag">자료별 기준일 확인 · <span id="syncstate">수집 대기 중</span></div></header>
 <div class="topline"><div><div class="eyebrow">GLOBAL EQUITY BUYING DASHBOARD</div><h1>국내 · 미국 주식시장 분할매수 매력도</h1><p>공포탐욕 · 금리 · 반도체 · 금 · 구리 · 버핏지수 · WTI, 7개 신호로 평가하는 2~3개월 분할매수 매력도</p></div><div class="tag">1 매수매력 낮음 &nbsp; → &nbsp; 10 매수매력 높음</div></div>
 <section class="market-columns">
 <section class="market-section" aria-label="한국 주식시장"><article class="panel"><div class="risk-head"><div><div class="sub">SOUTH KOREA</div><div class="place">🇰🇷 한국 주식시장</div></div><span class="state" id="krstate">계산 중</span></div><div class="big-score"><strong id="krscore">—</strong><small>/ 10</small></div><div class="scale"><i class="pin" id="krpin"></i></div><div class="scale-foot"><span>1 · 낮음</span><span>5 · 중립</span><span>10 · 높음</span></div><div class="insight" id="krinsight"></div></article>
@@ -180,7 +180,7 @@ function drawFeed(){
   }
   card.append(numeric);
   const status=document.createElement('div');status.className='feed-state '+data.type;
-  status.textContent=data.type==='ok'?'자동 수집':data.type==='fail'?'미수신':data.type==='manual'?'확인 중':'수동';
+  status.textContent=data.type==='ok'?'자동 수집':data.type==='old'?'이전 수신값':data.type==='fail'?'미수신':data.type==='manual'?'확인 중':'수동';
   card.append(status);root.append(card);
  }
 }
@@ -205,7 +205,7 @@ async function refresh(){
  if(fetching)return;
  fetching=true;
  for(const id of ['refresh','refresh-top'])$(id).disabled=true;
- const mask=$('load-mask');mask.hidden=false;
+ const mask=$('load-mask');mask.hidden=true;
  const abort=new AbortController();
  const timer=setTimeout(()=>abort.abort(),6000);
  $('syncstate').textContent='GitHub에 게시된 최신 JSON 조회 중';
@@ -217,6 +217,11 @@ async function refresh(){
   const age=Date.now()-Date.parse(data.as_of);
   const stale=!Number.isFinite(age)||age< -3600000||age>3*HOUR;
   let count=0,groups=0;
+  // Clear the previous automatic snapshot first: missing keys must not reuse stale inputs.
+  for(const field of ids){
+   const control=$('in-'+field);
+   if(control && control.tagName==='INPUT')control.value='';
+  }
   for(const [name,fields] of Object.entries(FEED_GROUPS)){
    const accepted=[];
    for(const field of fields){
@@ -229,7 +234,7 @@ async function refresh(){
      const observation=data.metadata?.[primary];
      const originalAge=Date.now()-Date.parse(observation?.as_of);
      const oldObservation=!Number.isFinite(originalAge)||originalAge> (name==='buffettUS'?240:name==='buffettKR'?120:name==='krRate'?400:name==='usRate'?30:['usCoreCPI','usUnemployment','usPayrolls'].includes(name)?75:8)*24*HOUR;
-     setFeed(name,(stale||oldObservation||observation?.carried_forward)?'fail':'ok',accepted,data.values);
+     setFeed(name,(stale||oldObservation||observation?.carried_forward)?'old':'ok',accepted,data.values);
    }
    else setFeed(name,'fail');
   }
