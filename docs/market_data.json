@@ -1,18 +1,18 @@
 {
-  "as_of": "2026-11-24T01:30:18.683129+00:00",
+  "as_of": "2026-11-24T01:36:14.412446+00:00",
   "complete": true,
   "errors": {
-    "buffettKR": "ValueError: GuruFocus request failed (HTTPError: HTTP Error 403: Forbidden); set KR_BUFFETT_MANUAL_VALUE and KR_BUFFETT_MANUAL_AS_OF only for a verified fallback",
-    "krBuffett": "ValueError: GuruFocus request failed (HTTPError: HTTP Error 403: Forbidden); set KR_BUFFETT_MANUAL_VALUE and KR_BUFFETT_MANUAL_AS_OF only for a verified fallback",
-    "usRate": "ValueError: FRED DFEDTARU: The read operation timed out; Investing actual: HTTP Error 403: Forbidden"
+    "buffettKR": "ValueError: KRX_API_KEY not configured",
+    "krBuffett": "ValueError: KRX_API_KEY not configured",
+    "usRate": "ValueError: Investing actual: HTTP Error 403: Forbidden; FRED fallback: The read operation timed out"
   },
   "metadata": {
     "copperchange": {
-      "as_of": "2026-11-24T01:19:31+00:00",
+      "as_of": "2026-11-24T01:25:41+00:00",
       "source": "Yahoo Finance HG=F"
     },
     "copperprice": {
-      "as_of": "2026-11-24T01:19:31+00:00",
+      "as_of": "2026-11-24T01:25:41+00:00",
       "source": "Yahoo Finance HG=F"
     },
     "ddrprice": {
@@ -25,7 +25,7 @@
       "source": "Yahoo Finance GC=F"
     },
     "goldprice": {
-      "as_of": "2026-11-24T01:29:43+00:00",
+      "as_of": "2026-11-24T01:35:43+00:00",
       "source": "Gold API XAU spot"
     },
     "krdir": {
@@ -73,23 +73,23 @@
       "source": "BLS LNS14000000"
     },
     "wtichange": {
-      "as_of": "2026-11-24T01:19:49+00:00",
+      "as_of": "2026-11-24T01:25:40+00:00",
       "source": "Yahoo Finance CL=F"
     },
     "wtiprice": {
-      "as_of": "2026-11-24T01:19:49+00:00",
+      "as_of": "2026-11-24T01:25:40+00:00",
       "source": "Yahoo Finance CL=F"
     }
   },
   "pending": [],
   "values": {
-    "copperchange": -13.59,
-    "copperprice": 5.596,
+    "copperchange": -13.68,
+    "copperprice": 5.59,
     "ddrprice": 78.5,
     "goldchange": -9.99,
-    "goldprice": 3667.100098,
+    "goldprice": 3673.149902,
     "krdir": 0,
-    "krfear": 10.9,
+    "krfear": 11.0,
     "krrate": 3.0,
     "usbuffett": 244.0,
     "uscorecpi": 2.87,
@@ -99,7 +99,7 @@
     "uspayrollchange": 165.0,
     "usunemployment": 4.1,
     "usunemployment3m": 0.0,
-    "wtichange": -22.52,
-    "wtiprice": 80.01
+    "wtichange": -22.62,
+    "wtiprice": 79.91
   }
 }
