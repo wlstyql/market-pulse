@@ -56,6 +56,10 @@
       "as_of": "2026-11-24",
       "source": "DRAMeXchange daily captured session averages"
     },
+    "netliquidity": {
+      "as_of": "2026-11-18T00:00:00+00:00",
+      "source": "FRED WALCL - WTREGEN - RRPONTSYD (USD billions)"
+    },
     "usbuffett": {
       "as_of": "2026-06-30",
       "source": "CurrentMarketValuation (quarterly public value)"
@@ -116,6 +120,7 @@
     "krrate": 3.0,
     "nand7change": 0.91,
     "nandchange": 5.29,
+    "netliquidity": 5824.508,
     "usbuffett": 244.0,
     "uscorecpi": 2.87,
     "uscorecpi3m": 3.75,

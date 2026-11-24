@@ -145,7 +145,11 @@ def last_series(identifier, history_days=500, max_age=60):
 
 def net_liquidity():
     def observations(series):
-        table = get_bytes(f'https://fred.stlouisfed.org/data/{series}.txt').decode('utf-8')
+        try:
+            with urlopen(f'https://fred.stlouisfed.org/data/{series}.txt', timeout=8) as response:
+                table = response.read(3_000_000).decode('utf-8')
+        except OSError:
+            table = ''
         rows = re.findall(r'#(\d{4}-\d{2}-\d{2})\|\s*([\d.]+)(?=\s|<)', table)
         values = {day: float(value) for day, value in rows if value != '.'}
         if values:
