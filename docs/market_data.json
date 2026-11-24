@@ -1,5 +1,5 @@
 {
-  "as_of": "2026-11-24T05:57:23.364952+00:00",
+  "as_of": "2026-11-24T12:30:33.791378+00:00",
   "complete": true,
   "errors": {},
   "metadata": {
@@ -29,7 +29,7 @@
       "source": "Yahoo Finance GC=F"
     },
     "goldprice": {
-      "as_of": "2026-11-24T05:56:43+00:00",
+      "as_of": "2026-11-24T12:29:44+00:00",
       "source": "Gold API XAU spot"
     },
     "krbuffett": {
@@ -73,7 +73,7 @@
       "source": "BLS CUSR0000SA0L1E"
     },
     "usfear": {
-      "as_of": "2026-11-24T01:00:00+00:00",
+      "as_of": "2026-11-24T12:12:16+00:00",
       "source": "CNN unofficial endpoint"
     },
     "uspayroll3m": {
@@ -107,16 +107,16 @@
   },
   "pending": [],
   "values": {
-    "copperchange": -15.05,
-    "copperprice": 5.5015,
-    "ddr7change": -0.95,
-    "ddrchange": -5.42,
-    "ddrprice": 78.375,
+    "copperchange": -14.77,
+    "copperprice": 5.5195,
+    "ddr7change": -1.11,
+    "ddrchange": -5.57,
+    "ddrprice": 78.25,
     "goldchange": -9.99,
-    "goldprice": 3629.149902,
-    "krbuffett": 156.36,
+    "goldprice": 3624.5,
+    "krbuffett": 151.46,
     "krdir": 0,
-    "krfear": 7.3,
+    "krfear": 7.1,
     "krrate": 3.0,
     "nand7change": 0.91,
     "nandchange": 5.29,
@@ -124,13 +124,13 @@
     "usbuffett": 244.0,
     "uscorecpi": 2.87,
     "uscorecpi3m": 3.75,
-    "usfear": 16.97,
+    "usfear": 15.73,
     "uspayroll3m": 137.0,
     "uspayrollchange": 165.0,
     "usrate": 4.0,
     "usunemployment": 4.1,
     "usunemployment3m": 0.0,
-    "wtichange": -22.8,
-    "wtiprice": 79.72
+    "wtichange": -22.48,
+    "wtiprice": 80.05
   }
 }
