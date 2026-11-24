@@ -1,18 +1,18 @@
 {
-  "as_of": "2026-11-23T09:00:57.774255+00:00",
+  "as_of": "2026-11-24T01:07:19.640513+00:00",
   "complete": true,
   "errors": {
-    "buffettKR": "ValueError: GuruFocus 4333: HTTP Error 403: Forbidden",
-    "krBuffett": "ValueError: GuruFocus 4333: HTTP Error 403: Forbidden",
-    "usRate": "ValueError: Investing actual: HTTP Error 403: Forbidden; FRED fallback: The read operation timed out"
+    "buffettKR": "ValueError: GuruFocus request failed (HTTPError: HTTP Error 403: Forbidden); set KR_BUFFETT_MANUAL_VALUE and KR_BUFFETT_MANUAL_AS_OF only for a verified fallback",
+    "krBuffett": "ValueError: GuruFocus request failed (HTTPError: HTTP Error 403: Forbidden); set KR_BUFFETT_MANUAL_VALUE and KR_BUFFETT_MANUAL_AS_OF only for a verified fallback",
+    "usRate": "ValueError: FRED DFEDTARU: The read operation timed out; Investing actual: HTTP Error 403: Forbidden"
   },
   "metadata": {
     "copperchange": {
-      "as_of": "2026-11-23T05:00:00+00:00",
+      "as_of": "2026-11-24T00:56:44+00:00",
       "source": "Yahoo Finance HG=F"
     },
     "copperprice": {
-      "as_of": "2026-11-23T05:00:00+00:00",
+      "as_of": "2026-11-24T00:56:44+00:00",
       "source": "Yahoo Finance HG=F"
     },
     "ddrprice": {
@@ -25,7 +25,7 @@
       "source": "Yahoo Finance GC=F"
     },
     "goldprice": {
-      "as_of": "2026-11-23T09:00:11+00:00",
+      "as_of": "2026-11-24T01:06:43+00:00",
       "source": "Gold API XAU spot"
     },
     "krdir": {
@@ -33,7 +33,7 @@
       "source": "한국은행 기준금리 변경 이력"
     },
     "krfear": {
-      "as_of": "2026-11-23T00:00:00+00:00",
+      "as_of": "2026-11-24T00:00:00+00:00",
       "source": "자체 산출 KOSPI 심리지수 (20일 모멘텀·이평선·RSI·변동성)"
     },
     "krrate": {
@@ -53,7 +53,7 @@
       "source": "BLS CUSR0000SA0L1E"
     },
     "usfear": {
-      "as_of": "2026-11-23T08:43:01+00:00",
+      "as_of": "2026-11-23T23:59:56+00:00",
       "source": "CNN unofficial endpoint"
     },
     "uspayroll3m": {
@@ -73,33 +73,33 @@
       "source": "BLS LNS14000000"
     },
     "wtichange": {
-      "as_of": "2026-11-23T05:00:00+00:00",
+      "as_of": "2026-11-24T00:56:51+00:00",
       "source": "Yahoo Finance CL=F"
     },
     "wtiprice": {
-      "as_of": "2026-11-23T05:00:00+00:00",
+      "as_of": "2026-11-24T00:56:51+00:00",
       "source": "Yahoo Finance CL=F"
     }
   },
   "pending": [],
   "values": {
-    "copperchange": -14.82,
-    "copperprice": 5.516,
+    "copperchange": -13.08,
+    "copperprice": 5.629,
     "ddrprice": 78.5,
     "goldchange": -9.99,
-    "goldprice": 3613.800049,
+    "goldprice": 3654.949951,
     "krdir": 0,
-    "krfear": 5.4,
+    "krfear": 8.7,
     "krrate": 3.0,
     "usbuffett": 244.0,
     "uscorecpi": 2.87,
     "uscorecpi3m": 3.75,
-    "usfear": 10.41,
+    "usfear": 16.97,
     "uspayroll3m": 137.0,
     "uspayrollchange": 165.0,
     "usunemployment": 4.1,
     "usunemployment3m": 0.0,
-    "wtichange": -19.95,
-    "wtiprice": 82.67
+    "wtichange": -22.08,
+    "wtiprice": 80.47
   }
 }
