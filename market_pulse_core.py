@@ -143,6 +143,26 @@ def last_series(identifier, history_days=500, max_age=60):
     return rows
 
 
+def net_liquidity():
+    def observations(series):
+        table = get_bytes(f'https://fred.stlouisfed.org/data/{series}.txt').decode('utf-8')
+        rows = re.findall(r'#(\d{4}-\d{2}-\d{2})\|\s*([\d.]+)(?=\s|<)', table)
+        values = {day: float(value) for day, value in rows if value != '.'}
+        if values:
+            return values
+        return {day.date().isoformat(): value for day, value in fred(series, 45)}
+
+    assets, treasury, repo = (observations(series) for series in ('WALCL', 'WTREGEN', 'RRPONTSYD'))
+    common = assets.keys() & treasury.keys() & repo.keys()
+    if not common:
+        raise ValueError('No common FRED observation date for net liquidity')
+    day = max(common)
+    stamp = current_date(day, 16)
+    # WALCL and WTREGEN are millions of dollars. RRPONTSYD is billions.
+    billions = (assets[day] - treasury[day]) / 1000 - repo[day]
+    return {'netliquidity': round(billions, 3)}, stamp
+
+
 def bls_monthly_history():
     """BLS public API v1 fallback, one request for 3 official monthly series.
     No login or registration key. This is used only if FRED fails.
@@ -441,7 +461,12 @@ def collect(progress=None):
                '; GDP year=' + data['gdp_year'] + ')',
                data['market_as_of'])
 
+    def liquidity():
+        fields, stamp = net_liquidity()
+        record(fields, 'FRED WALCL - WTREGEN - RRPONTSYD (USD billions)', stamp)
+
     tasks=[
+        ('liquidity', liquidity),
         ('gold',gold),('copper',lambda:commodity(['HG=F'],'copperprice','copperchange')),
         ('wti',lambda:commodity(['CL=F'],'wtiprice','wtichange')),
         ('usRate',us_rate),('usMacro',us_macro),('krRate',kr_rate),('krFear',kr_fear_kospi),('usFear',fear),

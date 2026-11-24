@@ -9,7 +9,7 @@ from datetime import datetime, timezone, timedelta
 import market_pulse_core as core
 
 OUTPUT = Path(__file__).parent / 'docs' / 'market_data.json'
-KEEP_DAYS = {'krbuffett':120,'usbuffett':240,'krrate':400,'usrate':30, 'uscorecpi':70,'uscorecpimom':70,'uscorecpi3m':70,'usunemployment':55,'usunemployment3m':55,'uspayrollchange':55,'uspayroll3m':55}
+KEEP_DAYS = {'netliquidity':16,'krbuffett':120,'usbuffett':240,'krrate':400,'usrate':30, 'uscorecpi':70,'uscorecpimom':70,'uscorecpi3m':70,'usunemployment':55,'usunemployment3m':55,'uspayrollchange':55,'uspayroll3m':55}
 
 def merge(old, new):
     now=datetime.now(timezone.utc)
