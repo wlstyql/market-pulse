@@ -1,5 +1,5 @@
 {
-  "as_of": "2026-11-26T09:32:29.568868+00:00",
+  "as_of": "2026-11-26T19:38:16.345825+00:00",
   "complete": true,
   "errors": {
     "usPayrolls": "FRED TimeoutError: The read operation timed out; BLS ValueError: invalid or stale timestamp; Investing: HTTP Error 403: Forbidden",
@@ -7,11 +7,11 @@
   },
   "metadata": {
     "copperchange": {
-      "as_of": "2026-11-26T09:22:03+00:00",
+      "as_of": "2026-11-26T19:25:01+00:00",
       "source": "Yahoo Finance HG=F"
     },
     "copperprice": {
-      "as_of": "2026-11-26T09:22:03+00:00",
+      "as_of": "2026-11-26T19:25:01+00:00",
       "source": "Yahoo Finance HG=F"
     },
     "ddr7change": {
@@ -32,7 +32,7 @@
       "source": "Yahoo Finance GC=F"
     },
     "goldprice": {
-      "as_of": "2026-11-26T09:31:47+00:00",
+      "as_of": "2026-11-26T19:37:48+00:00",
       "source": "Gold API XAU spot"
     },
     "krbuffett": {
@@ -44,7 +44,7 @@
       "source": "한국은행 기준금리 변경 이력"
     },
     "krfear": {
-      "as_of": "2026-11-26T00:00:00+00:00",
+      "as_of": "2026-11-25T00:00:00+00:00",
       "source": "자체 산출 KOSPI 심리지수 (20일 모멘텀·이평선·RSI·변동성)"
     },
     "krrate": {
@@ -84,26 +84,26 @@
       "source": "New York Fed - target range upper bound"
     },
     "wtichange": {
-      "as_of": "2026-11-26T09:22:03+00:00",
+      "as_of": "2026-11-26T19:27:44+00:00",
       "source": "Yahoo Finance CL=F"
     },
     "wtiprice": {
-      "as_of": "2026-11-26T09:22:03+00:00",
+      "as_of": "2026-11-26T19:27:44+00:00",
       "source": "Yahoo Finance CL=F"
     }
   },
   "pending": [],
   "values": {
-    "copperchange": -17.56,
-    "copperprice": 5.459,
+    "copperchange": -17.91,
+    "copperprice": 5.436,
     "ddr7change": -1.59,
     "ddrchange": -6.2,
     "ddrprice": 77.5,
     "goldchange": -9.99,
-    "goldprice": 3572.199951,
+    "goldprice": 3566.199951,
     "krbuffett": 151.33,
     "krdir": 1,
-    "krfear": 8.3,
+    "krfear": 7.1,
     "krrate": 3.25,
     "nand7change": 0.91,
     "nandchange": 4.33,
@@ -113,7 +113,7 @@
     "uscorecpi3m": 3.75,
     "usfear": 15.0,
     "usrate": 4.0,
-    "wtichange": -16.65,
-    "wtiprice": 83.27
+    "wtichange": -14.99,
+    "wtiprice": 84.92
   }
 }
