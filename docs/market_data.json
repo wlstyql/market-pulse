@@ -1,5 +1,5 @@
 {
-  "as_of": "2026-11-27T02:51:36.152573+00:00",
+  "as_of": "2026-11-27T12:21:16.322116+00:00",
   "complete": true,
   "errors": {
     "usPayrolls": "FRED TimeoutError: The read operation timed out; BLS ValueError: invalid or stale timestamp; Investing: HTTP Error 403: Forbidden",
@@ -7,11 +7,11 @@
   },
   "metadata": {
     "copperchange": {
-      "as_of": "2026-11-27T02:41:10+00:00",
+      "as_of": "2026-11-27T12:10:34+00:00",
       "source": "Yahoo Finance HG=F"
     },
     "copperprice": {
-      "as_of": "2026-11-27T02:41:10+00:00",
+      "as_of": "2026-11-27T12:10:34+00:00",
       "source": "Yahoo Finance HG=F"
     },
     "ddr7change": {
@@ -23,7 +23,7 @@
       "source": "DRAMeXchange daily captured session averages"
     },
     "ddrprice": {
-      "as_of": "2026-11-26",
+      "as_of": "2026-11-27",
       "source": "DRAMeXchange DDR4 16Gb 3200 session average"
     },
     "goldchange": {
@@ -32,7 +32,7 @@
       "source": "Yahoo Finance GC=F"
     },
     "goldprice": {
-      "as_of": "2026-11-27T02:50:49+00:00",
+      "as_of": "2026-11-27T12:20:49+00:00",
       "source": "Gold API XAU spot"
     },
     "krbuffett": {
@@ -76,7 +76,7 @@
       "source": "BLS CUSR0000SA0L1E"
     },
     "usfear": {
-      "as_of": "2026-11-26T01:59:59+00:00",
+      "as_of": "2026-11-27T12:01:16+00:00",
       "source": "CNN unofficial endpoint"
     },
     "usrate": {
@@ -84,26 +84,26 @@
       "source": "New York Fed - target range upper bound"
     },
     "wtichange": {
-      "as_of": "2026-11-27T02:41:08+00:00",
+      "as_of": "2026-11-27T12:10:49+00:00",
       "source": "Yahoo Finance CL=F"
     },
     "wtiprice": {
-      "as_of": "2026-11-27T02:41:08+00:00",
+      "as_of": "2026-11-27T12:10:49+00:00",
       "source": "Yahoo Finance CL=F"
     }
   },
   "pending": [],
   "values": {
-    "copperchange": -14.76,
-    "copperprice": 5.6445,
-    "ddr7change": -1.43,
-    "ddrchange": -6.54,
-    "ddrprice": 77.5,
+    "copperchange": -14.94,
+    "copperprice": 5.6495,
+    "ddr7change": -2.54,
+    "ddrchange": -7.59,
+    "ddrprice": 76.625,
     "goldchange": -9.99,
-    "goldprice": 3626.0,
-    "krbuffett": 151.33,
+    "goldprice": 3670.800049,
+    "krbuffett": 151.89,
     "krdir": 1,
-    "krfear": 9.1,
+    "krfear": 9.5,
     "krrate": 3.25,
     "nand7change": 0.91,
     "nandchange": 4.33,
@@ -111,9 +111,9 @@
     "usbuffett": 244.0,
     "uscorecpi": 2.87,
     "uscorecpi3m": 3.75,
-    "usfear": 15.0,
+    "usfear": 17.86,
     "usrate": 4.0,
-    "wtichange": -14.17,
-    "wtiprice": 85.74
+    "wtichange": -17.17,
+    "wtiprice": 85.13
   }
 }
