@@ -1,5 +1,5 @@
 {
-  "as_of": "2026-11-26T19:38:16.345825+00:00",
+  "as_of": "2026-11-27T02:51:36.152573+00:00",
   "complete": true,
   "errors": {
     "usPayrolls": "FRED TimeoutError: The read operation timed out; BLS ValueError: invalid or stale timestamp; Investing: HTTP Error 403: Forbidden",
@@ -7,19 +7,19 @@
   },
   "metadata": {
     "copperchange": {
-      "as_of": "2026-11-26T19:25:01+00:00",
+      "as_of": "2026-11-27T02:41:10+00:00",
       "source": "Yahoo Finance HG=F"
     },
     "copperprice": {
-      "as_of": "2026-11-26T19:25:01+00:00",
+      "as_of": "2026-11-27T02:41:10+00:00",
       "source": "Yahoo Finance HG=F"
     },
     "ddr7change": {
-      "as_of": "2026-11-26",
+      "as_of": "2026-11-27",
       "source": "DRAMeXchange daily captured session averages"
     },
     "ddrchange": {
-      "as_of": "2026-11-26",
+      "as_of": "2026-11-27",
       "source": "DRAMeXchange daily captured session averages"
     },
     "ddrprice": {
@@ -32,11 +32,11 @@
       "source": "Yahoo Finance GC=F"
     },
     "goldprice": {
-      "as_of": "2026-11-26T19:37:48+00:00",
+      "as_of": "2026-11-27T02:50:49+00:00",
       "source": "Gold API XAU spot"
     },
     "krbuffett": {
-      "as_of": "2026-11-26T00:00:00+00:00",
+      "as_of": "2026-11-27T00:00:00+00:00",
       "source": "Gookjang - Korea Buffett indicator"
     },
     "krdir": {
@@ -44,7 +44,7 @@
       "source": "한국은행 기준금리 변경 이력"
     },
     "krfear": {
-      "as_of": "2026-11-25T00:00:00+00:00",
+      "as_of": "2026-11-27T00:00:00+00:00",
       "source": "자체 산출 KOSPI 심리지수 (20일 모멘텀·이평선·RSI·변동성)"
     },
     "krrate": {
@@ -52,11 +52,11 @@
       "source": "한국은행 기준금리 변경 이력"
     },
     "nand7change": {
-      "as_of": "2026-11-26",
+      "as_of": "2026-11-27",
       "source": "DRAMeXchange daily captured session averages"
     },
     "nandchange": {
-      "as_of": "2026-11-26",
+      "as_of": "2026-11-27",
       "source": "DRAMeXchange daily captured session averages"
     },
     "netliquidity": {
@@ -84,26 +84,26 @@
       "source": "New York Fed - target range upper bound"
     },
     "wtichange": {
-      "as_of": "2026-11-26T19:27:44+00:00",
+      "as_of": "2026-11-27T02:41:08+00:00",
       "source": "Yahoo Finance CL=F"
     },
     "wtiprice": {
-      "as_of": "2026-11-26T19:27:44+00:00",
+      "as_of": "2026-11-27T02:41:08+00:00",
       "source": "Yahoo Finance CL=F"
     }
   },
   "pending": [],
   "values": {
-    "copperchange": -17.91,
-    "copperprice": 5.436,
-    "ddr7change": -1.59,
-    "ddrchange": -6.2,
+    "copperchange": -14.76,
+    "copperprice": 5.6445,
+    "ddr7change": -1.43,
+    "ddrchange": -6.54,
     "ddrprice": 77.5,
     "goldchange": -9.99,
-    "goldprice": 3566.199951,
+    "goldprice": 3626.0,
     "krbuffett": 151.33,
     "krdir": 1,
-    "krfear": 7.1,
+    "krfear": 9.1,
     "krrate": 3.25,
     "nand7change": 0.91,
     "nandchange": 4.33,
@@ -113,7 +113,7 @@
     "uscorecpi3m": 3.75,
     "usfear": 15.0,
     "usrate": 4.0,
-    "wtichange": -14.99,
-    "wtiprice": 84.92
+    "wtichange": -14.17,
+    "wtiprice": 85.74
   }
 }
