@@ -1,5 +1,5 @@
 {
-  "as_of": "2026-11-28T13:00:19.621198+00:00",
+  "as_of": "2026-11-28T20:55:54.478088+00:00",
   "complete": true,
   "errors": {
     "usPayrolls": "FRED TimeoutError: The read operation timed out; BLS ValueError: invalid or stale timestamp; Investing: HTTP Error 403: Forbidden",
@@ -32,7 +32,7 @@
       "source": "Yahoo Finance GC=F"
     },
     "goldprice": {
-      "as_of": "2026-11-28T12:59:26+00:00",
+      "as_of": "2026-11-28T20:55:26+00:00",
       "source": "Gold API XAU spot"
     },
     "krbuffett": {
